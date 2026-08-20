@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#081511">
+  <meta name="description" content="مدار؛ آکادمی و رصدخانه پژوهشی برای یادگیری مهندسی فضا، پرتابگرها، مدارها، تاریخچه پرتاب‌ها و تحلیل شکست.">
+  <meta name="application-name" content="مدار">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="مدار">
+  <meta name="format-detection" content="telephone=no">
+  <title>مدار — آکادمی و رصدخانه فضایی</title>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" type="image/png" sizes="64x64" href="/icons/favicon-64.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <svg class="svg-defs" aria-hidden="true">
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5M5.5 10v10h13V10M9 20v-6h6v6"/></symbol>
+    <symbol id="i-learn" viewBox="0 0 24 24"><path d="M4 5.5A3.5 3.5 0 0 1 7.5 2H11v17H7.5A3.5 3.5 0 0 0 4 22V5.5ZM20 5.5A3.5 3.5 0 0 0 16.5 2H13v17h3.5A3.5 3.5 0 0 1 20 22V5.5Z"/></symbol>
+    <symbol id="i-rocket" viewBox="0 0 24 24"><path d="M14 4c2.7-2.7 6-2 6-2s.7 3.3-2 6l-6.5 6.5-4-4L14 4Z"/><path d="m12 14 1 4-3 3-1.5-5.5M8 10l-4 1-2 3 5.5 1.5M7 17c-2 0-3 1-3 3 2 0 3-1 3-3Z"/><circle cx="16" cy="6" r="1.3"/></symbol>
+    <symbol id="i-orbit" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><ellipse cx="12" cy="12" rx="10" ry="4.5" transform="rotate(-30 12 12)"/><circle cx="20" cy="8" r="1.2"/></symbol>
+    <symbol id="i-satellite" viewBox="0 0 24 24"><path d="m9 9 6 6M7 13l4 4-3 3-4-4 3-3ZM17 4l3 3-3 3-4-4 4-2ZM14 17l3 3M4 10l3 3"/><path d="M15 9c2 0 3 1 3 3M15 6c4 0 6 2 6 6"/></symbol>
+    <symbol id="i-history" viewBox="0 0 24 24"><path d="M4 5v5h5M4.5 10A8.5 8.5 0 1 1 5 16"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="m12 3 10 18H2L12 3Z"/><path d="M12 9v5M12 17.5v.5"/></symbol>
+    <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></symbol>
+    <symbol id="i-video" viewBox="0 0 24 24"><rect x="2" y="5" width="15" height="14" rx="2"/><path d="m17 10 5-3v10l-5-3v-4ZM8 9l4 3-4 3V9Z"/></symbol>
+    <symbol id="i-calc" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M7 5h10v4H7zM8 13h.01M12 13h.01M16 13h.01M8 17h.01M12 17h.01M16 17h.01"/></symbol>
+    <symbol id="i-source" viewBox="0 0 24 24"><path d="M5 3h10l4 4v14H5V3Z"/><path d="M14 3v5h5M8 12h8M8 16h8"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 5 5"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></symbol>
+    <symbol id="i-external" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9"/><path d="M18 14v6H4V6h6"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M4 20h16"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="m5 5 14 14M19 5 5 19"/></symbol>
+    <symbol id="i-bookmark" viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4-6 4V3Z"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M18.5 10A7 7 0 0 0 6 7M5.5 14A7 7 0 0 0 18 17"/></symbol>
+  </svg>
+
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true"><span></span><i></i></div>
+        <div><strong>مَدار</strong><small>آکادمی و رصدخانه فضایی</small></div>
+      </div>
+
+      <nav class="main-nav" aria-label="ناوبری اصلی">
+        <button class="nav-item active" data-view="dashboard"><svg><use href="#i-home"/></svg><span>نمای کلی</span></button>
+        <button class="nav-item" data-view="search"><svg><use href="#i-search"/></svg><span>جست‌وجوی یکپارچه</span></button>
+        <div class="nav-caption">یادگیری</div>
+        <button class="nav-item" data-view="learning"><svg><use href="#i-learn"/></svg><span>مسیر یادگیری</span><b class="nav-badge">۱۲</b></button>
+        <button class="nav-item" data-view="anatomy"><svg><use href="#i-rocket"/></svg><span>کالبدشکافی پرتاب</span></button>
+        <button class="nav-item" data-view="orbits"><svg><use href="#i-orbit"/></svg><span>اطلس مدارها</span></button>
+        <button class="nav-item" data-view="satellites"><svg><use href="#i-satellite"/></svg><span>دانشنامه ماهواره‌ها</span></button>
+        <button class="nav-item" data-view="knowledge"><svg><use href="#i-learn"/></svg><span>کتابخانه دانش</span><b class="nav-badge">۷۵</b></button>
+        <div class="nav-caption">رصدخانه</div>
+        <button class="nav-item" data-view="agencies"><svg><use href="#i-source"/></svg><span>NASA / ESA زنده</span><i class="live-dot" title="داده زنده"></i></button>
+        <button class="nav-item" data-view="launches"><svg><use href="#i-history"/></svg><span>بانک پرتاب‌ها</span><i class="live-dot" title="داده زنده"></i></button>
+        <button class="nav-item" data-view="failures"><svg><use href="#i-alert"/></svg><span>شکست‌ها و درس‌ها</span></button>
+        <button class="nav-item" data-view="launchers"><svg><use href="#i-grid"/></svg><span>دانشنامه پرتابگرها</span></button>
+        <div class="nav-caption">آزمایشگاه</div>
+        <button class="nav-item" data-view="summarizer"><svg><use href="#i-video"/></svg><span>خلاصه‌ساز ویدئو</span><em>بتا</em></button>
+        <button class="nav-item" data-view="tools"><svg><use href="#i-calc"/></svg><span>ابزارهای مهندسی</span></button>
+        <button class="nav-item" data-view="sources"><svg><use href="#i-source"/></svg><span>منابع و روش پژوهش</span></button>
+      </nav>
+
+      <div class="sidebar-card">
+        <div class="sidebar-card-icon">π</div>
+        <div><small>چالش این هفته</small><strong>طراحی انتقال هوهمن</strong></div>
+        <button data-view="tools" data-tool-tab="hohmann"><svg><use href="#i-arrow"/></svg></button>
+      </div>
+      <div class="sidebar-foot"><span class="status-led"></span> داده زنده با کش هوشمند <b>v0.7</b></div>
+    </aside>
+
+    <div class="sidebar-scrim" id="sidebarScrim"></div>
+
+    <main class="main-area">
+      <header class="topbar">
+        <button class="icon-btn menu-btn" id="menuBtn" aria-label="بازکردن فهرست"><svg><use href="#i-menu"/></svg></button>
+        <div class="topbar-title"><span id="pageEyebrow">مرکز فرمان</span><strong id="pageTitle">نمای کلی</strong></div>
+        <div class="topbar-actions">
+          <div class="language-switch" id="languageSwitch" role="group" aria-label="انتخاب زبان"><button data-lang="fa" class="active">فا</button><button data-lang="en">EN</button></div>
+          <button class="install-app-btn" id="installAppBtn" hidden><svg><use href="#i-download"/></svg><span>نصب مدار</span></button>
+          <label class="global-search"><svg><use href="#i-search"/></svg><input id="globalSearch" type="search" placeholder="جست‌وجوی مفهوم، مأموریت یا پرتابگر…"><kbd>/</kbd></label>
+          <button class="icon-btn" id="bookmarkBtn" aria-label="نشان‌شده‌ها"><svg><use href="#i-bookmark"/></svg><span id="bookmarkCount">۰</span></button>
+          <div class="profile-chip"><div class="avatar">ش</div><div><strong>دانشجوی هوافضا</strong><small>سطح دانشگاهی</small></div><span>⌄</span></div>
+        </div>
+      </header>
+
+      <div class="content">
+        <!-- Unified search -->
+        <section class="view" id="view-search" data-title="جست‌وجوی یکپارچه" data-eyebrow="دسترسی مستقیم به دانش" data-title-en="Unified Search" data-eyebrow-en="Direct Knowledge Access">
+          <header class="page-hero compact search-page-hero"><div><span class="section-kicker">UNIFIED KNOWLEDGE SEARCH</span><h1>هر مفهوم فضایی را از یک نقطه پیدا کنید</h1><p>در مسیرهای آموزشی، کتابخانه دانش، مدارها، پرتابگرها، ماهواره‌ها، اجزا، شکست‌ها، پرتاب‌های زنده و مطالب NASA/ESA جست‌وجو کنید.</p></div><div class="search-index-stat"><strong id="searchIndexCount">—</strong><span>رکورد قابل جست‌وجو</span></div></header>
+          <section class="unified-search-box"><svg><use href="#i-search"/></svg><input id="unifiedSearchInput" type="search" autocomplete="off" placeholder="برای مثال: Lambert، کنترل LQR، SAR، طراحی باتری، Falcon 9…"><button id="clearUnifiedSearch" hidden><svg><use href="#i-close"/></svg></button><kbd>/</kbd></section>
+          <div class="search-suggestions"><span>جست‌وجوی پیشنهادی</span><button data-search-query="مکانیک مداری پیشرفته">مکانیک مداری پیشرفته</button><button data-search-query="طراحی ماهواره">طراحی ماهواره</button><button data-search-query="کنترل وضعیت">کنترل وضعیت</button><button data-search-query="سنجش از راه دور">سنجش‌ازدور</button><button data-search-query="پرتابگر استفاده مجدد">پرتابگر بازیابی‌پذیر</button></div>
+          <div class="search-filter-bar"><select id="searchDomainFilter"><option value="all">همه حوزه‌ها</option><option value="launchers">پرتابگر</option><option value="orbital">مکانیک مداری</option><option value="design">طراحی ماهواره</option><option value="control">کنترل ماهواره</option><option value="remote">سنجش‌ازدور</option><option value="missions">ماموریت و داده زنده</option></select><select id="searchLevelFilter"><option value="all">همه سطوح</option><option value="foundation">مقدماتی</option><option value="university">دانشگاهی</option><option value="advanced">معلومات پیشرفته</option></select><div class="search-result-count" id="searchResultCount">برای آغاز، عبارتی بنویسید.</div></div>
+          <div class="search-layout"><aside class="search-history"><span class="section-kicker">RECENT SEARCHES</span><div id="recentSearches"><p>هنوز جست‌وجویی ثبت نشده است.</p></div><button id="clearSearchHistory">پاک‌کردن تاریخچه</button></aside><section class="search-results" id="searchResults"><div class="search-welcome"><div class="search-radar"><i></i><i></i><span></span></div><h2>نام، اصطلاح یا عنوان موردنظر را جست‌وجو کنید</h2><p>جست‌وجو به حروف فارسی/عربی، فاصله و نیم‌فاصله حساس نیست و اصطلاحات انگلیسی را نیز می‌پذیرد.</p></div></section></div>
+        </section>
+
+        <!-- Dashboard -->
+        <section class="view active" id="view-dashboard" data-title="نمای کلی" data-eyebrow="مرکز فرمان">
+          <div class="hero-grid">
+            <article class="hero-panel">
+              <div class="eyebrow"><span class="pulse"></span> پایگاه دانش زنده · به‌روزشده امروز</div>
+              <h1>فضا را حفظ نکن؛<br><em>لایه‌به‌لایه بفهم.</em></h1>
+              <p>از فیزیک نخستین ثانیه پرتاب تا تزریق مداری، طراحی ماهواره و تحلیل دقیق شکست‌ها—با مسیر دانشگاهی، داده زنده و منبع قابل پیگیری.</p>
+              <div class="hero-actions">
+                <button class="btn primary" data-view="learning"><span>ادامه مسیر یادگیری</span><svg><use href="#i-arrow"/></svg></button>
+                <button class="btn ghost" data-view="anatomy"><svg><use href="#i-rocket"/></svg><span>یک پرتاب را باز کن</span></button>
+              </div>
+              <div class="hero-meta"><div><strong id="overallProgress">۰٪</strong><span>پیشرفت شما</span></div><div class="mini-progress"><i id="overallProgressBar"></i></div><div><strong id="completedModules">۰ از ۱۲</strong><span>ماژول تکمیل‌شده</span></div></div>
+            </article>
+            <article class="orbit-hero" aria-label="نمایش شماتیک مدارهای زمین">
+              <div class="space-label top">GEO <span>35,786 km</span></div>
+              <div class="space-label mid">MEO <span>20,200 km</span></div>
+              <div class="space-label low">LEO <span>400–2,000 km</span></div>
+              <div class="orbit-ring ring-3"><i class="sat sat-3"></i></div>
+              <div class="orbit-ring ring-2"><i class="sat sat-2"></i></div>
+              <div class="orbit-ring ring-1"><i class="sat sat-1"></i></div>
+              <div class="earth"><span class="continent c1"></span><span class="continent c2"></span><span class="continent c3"></span><i></i></div>
+              <div class="hero-rocket"><span></span><i></i></div>
+              <div class="orbit-data"><small>سرعت در ۴۰۰ km</small><strong>7.67 <b>km/s</b></strong></div>
+              <div class="star s1">·</div><div class="star s2">·</div><div class="star s3">·</div><div class="star s4">·</div>
+            </article>
+          </div>
+
+          <div class="stat-row">
+            <article class="stat-card"><div class="stat-icon cyan"><svg><use href="#i-history"/></svg></div><div><span>رکورد پرتاب در پایگاه</span><strong id="statLaunches">—</strong><small>مرتب از جدید به قدیم</small></div><i class="spark"><b></b><b></b><b></b><b></b><b></b></i></article>
+            <article class="stat-card"><div class="stat-icon coral"><svg><use href="#i-alert"/></svg></div><div><span>شکست مداری ثبت‌شده</span><strong id="statFailures">—</strong><small>شامل failure، نه صرفاً anomaly</small></div></article>
+            <article class="stat-card"><div class="stat-icon lime"><svg><use href="#i-learn"/></svg></div><div><span>ماژول آموزشی</span><strong>۱۲</strong><small>از مقدماتی تا پیشرفته</small></div></article>
+            <article class="stat-card"><div class="stat-icon gold"><svg><use href="#i-source"/></svg></div><div><span>منبع پایه</span><strong id="statSources">—</strong><small>رسمی، دانشگاهی و داده‌باز</small></div></article>
+          </div>
+
+          <div class="dashboard-grid">
+            <section class="panel latest-panel">
+              <div class="panel-head"><div><span class="section-kicker">رصد زنده</span><h2>جدیدترین پرتاب‌ها</h2></div><button class="text-btn" data-view="launches">مشاهده همه <svg><use href="#i-arrow"/></svg></button></div>
+              <div class="latest-list" id="dashboardLaunches"><div class="skeleton-line"></div><div class="skeleton-line"></div><div class="skeleton-line"></div></div>
+              <div class="data-source-line"><span class="status-led"></span><span id="launchDataStatus">در حال اتصال به Launch Library 2…</span><a href="https://thespacedevs.com/llapi" target="_blank" rel="noreferrer">منبع <svg><use href="#i-external"/></svg></a></div>
+            </section>
+
+            <section class="panel continue-panel">
+              <div class="panel-head"><div><span class="section-kicker">ادامه یادگیری</span><h2>مکانیک مداری پایه</h2></div><span class="lesson-number">02</span></div>
+              <div class="lesson-visual"><div class="lesson-orbit"><span></span><i></i></div><div class="formula">v = √<span>μ / r</span></div></div>
+              <div class="continue-copy"><span>درس بعدی</span><strong>چرا ماهواره روی زمین نمی‌افتد؟</strong><p>مدار، سقوط آزادی است که پیوسته سطح خمیده زمین را از دست می‌دهد.</p></div>
+              <div class="progress-line"><i style="width:28%"></i></div>
+              <div class="continue-foot"><span>۲ از ۱۰ درس</span><button class="btn small primary" data-view="orbits">شروع درس <svg><use href="#i-arrow"/></svg></button></div>
+            </section>
+
+            <section class="panel daily-panel">
+              <div class="panel-head"><div><span class="section-kicker">مفهوم روز</span><h2>مدار، ارتفاع نیست</h2></div><span class="concept-index">#۰۱</span></div>
+              <blockquote>«برای ماندن در مدار باید بیشتر <em>افقی</em> رفت تا بالا.»</blockquote>
+              <p>یک جسم در ارتفاع ۴۰۰ کیلومتری اگر سرعت افقی نداشته باشد سقوط می‌کند. آنچه ISS را در مدار نگه می‌دارد، سرعت مماسی حدود ۷٫۷ km/s است.</p>
+              <button class="link-chip" data-view="anatomy">دیدن لحظه تزریق مداری <svg><use href="#i-arrow"/></svg></button>
+            </section>
+          </div>
+        </section>
+
+        <!-- Three-level knowledge library -->
+        <section class="view" id="view-knowledge" data-title="کتابخانه دانش" data-eyebrow="از مبانی تا معلومات پیشرفته" data-title-en="Knowledge Library" data-eyebrow-en="Foundation to Advanced Knowledge">
+          <header class="page-hero compact knowledge-page-hero"><div><span class="section-kicker">THREE-LEVEL SPACE KNOWLEDGE</span><h1>تمام موضوعات، در سطح درست خودشان</h1><p>نقص‌های آموزشی پنج حوزه اصلی در ۷۵ موضوع ساختاریافته تکمیل شده‌اند. مباحث تخصصی فقط در دسته «معلومات پیشرفته» قرار گرفته‌اند و پیش‌نیاز هر موضوع مشخص است.</p></div><div class="knowledge-total"><strong>۷۵</strong><span>موضوع ساختاریافته</span><small>۵ حوزه × ۳ سطح</small></div></header>
+          <div class="knowledge-level-guide"><article data-knowledge-level="foundation"><span>01</span><div><strong>مقدماتی</strong><p>توضیح شهودی، واژگان و مثال؛ بدون ریاضیات سنگین</p></div></article><article data-knowledge-level="university"><span>02</span><div><strong>دانشگاهی</strong><p>روابط، محاسبات، طراحی و تحلیل مهندسی</p></div></article><article class="advanced" data-knowledge-level="advanced"><span>03</span><div><strong>معلومات پیشرفته</strong><p>کنترل بهینه، روش عددی، تخمین، SAR/InSAR و MBSE</p></div></article></div>
+          <div class="knowledge-domain-grid" id="knowledgeDomainGrid"></div>
+          <div class="knowledge-toolbar"><label class="inline-search"><svg><use href="#i-search"/></svg><input id="knowledgeFilterInput" type="search" placeholder="جست‌وجو در ۷۵ موضوع…"></label><select id="knowledgeDomainFilter"><option value="all">همه حوزه‌ها</option><option value="launchers">پرتابگر و پیشرانش</option><option value="orbital">مکانیک مداری</option><option value="design">طراحی ماهواره</option><option value="control">کنترل ماهواره</option><option value="remote">سنجش‌ازدور</option></select><select id="knowledgeLevelFilter"><option value="all">همه سطوح</option><option value="foundation">مقدماتی</option><option value="university">دانشگاهی</option><option value="advanced">معلومات پیشرفته</option></select></div>
+          <section class="knowledge-coverage-matrix" id="knowledgeCoverageMatrix"></section>
+          <div class="section-title-row"><div><span class="section-kicker">CURRICULUM TOPICS</span><h2 id="knowledgeGridTitle">تمام موضوعات</h2></div><small id="knowledgeTopicCount">۷۵ موضوع</small></div>
+          <div class="knowledge-topic-grid" id="knowledgeTopicGrid"></div>
+          <div class="advanced-knowledge-note"><svg><use href="#i-info"/></svg><div><strong>قاعده دسته‌بندی معلومات پیشرفته</strong><p>موضوعی در این سطح قرار می‌گیرد که بدون تسلط بر ریاضیات دانشگاهی، معادلات دیفرانسیل، احتمال، کنترل یا پردازش سیگنال قابل استفاده ایمن نباشد. این برچسب به معنی اختیاری‌بودن موضوع نیست؛ بلکه ترتیب صحیح مطالعه را مشخص می‌کند.</p></div></div>
+        </section>
+
+        <!-- Learning path -->
+        <section class="view" id="view-learning" data-title="مسیر یادگیری" data-eyebrow="آکادمی مهندسی فضا">
+          <header class="page-hero compact"><div><span class="section-kicker">SPACE ENGINEERING ROADMAP</span><h1>از دانشجوی ترم سوم تا طراح مأموریت</h1><p>یک مسیر پیشنهادی ۸۳ ساعته با ترتیب پیش‌نیاز، خروجی قابل‌اندازه‌گیری و اصطلاحات انگلیسی هر حوزه.</p></div><div class="path-progress"><strong id="pathPercent">۰٪</strong><span>پیشرفت مسیر</span><div><i id="pathBar"></i></div><small id="pathCompleted">هنوز ماژولی تکمیل نشده</small></div></header>
+          <div class="filter-row"><button class="filter-chip active" data-level="all">همه ماژول‌ها</button><button class="filter-chip" data-level="مقدماتی">مقدماتی</button><button class="filter-chip" data-level="دانشگاهی">دانشگاهی</button><button class="filter-chip" data-level="پیشرفته">پیشرفته</button><span class="filter-spacer"></span><small>برای تکمیل، علامت ✓ هر کارت را بزنید.</small></div>
+          <div class="learning-map" id="learningMap"></div>
+        </section>
+
+        <!-- Launch anatomy -->
+        <section class="view" id="view-anatomy" data-title="کالبدشکافی پرتاب" data-eyebrow="آزمایشگاه صعود">
+          <header class="page-hero compact"><div><span class="section-kicker">LAUNCH ANATOMY</span><h1>از سکوی پرتاب تا نخستین سیگنال</h1><p>توالی مرجع یک پرتاب مداری دومرحله‌ای را بررسی کنید. زمان‌ها و ارتفاع‌ها نمونه‌اند و برای هر پرتابگر تغییر می‌کنند.</p></div><div class="legend-stack"><span><i class="cyan-dot"></i> رویداد پیشرانش</span><span><i class="gold-dot"></i> رویداد سازه‌ای</span><span><i class="violet-dot"></i> عملیات مداری</span></div></header>
+          <div class="anatomy-shell">
+            <aside class="stage-rail" id="stageRail"></aside>
+            <section class="stage-workbench">
+              <div class="flight-canvas" id="flightCanvas">
+                <div class="flight-grid"></div><div class="horizon"></div>
+                <div class="canvas-alt"><span>۱۰۰ km · خط کارمان</span><span>۵۰ km</span><span>۱۰ km</span><span>سطح زمین</span></div>
+                <div class="trajectory"><i></i></div>
+                <div class="rocket-model" id="rocketModel"><div class="fairing"></div><div class="stage upper"></div><div class="interstage"></div><div class="stage lower"></div><div class="flame"></div></div>
+                <div class="flight-readout"><div><small>زمان مأموریت</small><strong id="readoutTime">T−ماه‌ها</strong></div><div><small>ارتفاع نمونه</small><strong id="readoutAlt">۰ km</strong></div><div><small>سرعت نمونه</small><strong id="readoutSpeed">۰</strong></div></div>
+              </div>
+              <article class="stage-detail" id="stageDetail"></article>
+            </section>
+          </div>
+        </section>
+
+        <!-- Orbit atlas -->
+        <section class="view" id="view-orbits" data-title="اطلس مدارها" data-eyebrow="مکانیک مداری">
+          <header class="page-hero compact"><div><span class="section-kicker">ORBIT ATLAS</span><h1>هر مدار، پاسخ یک نیاز مأموریتی است</h1><p>ارتفاع، میل و خروج از مرکز را به «کاربرد» پیوند دهید؛ سپس با محاسبه‌گر، سرعت و دوره را بسنجید.</p></div><button class="btn ghost" data-view="tools" data-tool-tab="orbit">بازکردن آزمایشگاه کامل <svg><use href="#i-calc"/></svg></button></header>
+          <div class="orbit-tabs" id="orbitTabs"></div>
+          <div class="atlas-grid">
+            <section class="panel orbit-map-panel">
+              <div class="orbit-scale">
+                <div class="scale-label geo">GEO · 35,786 km</div><div class="scale-label meo">MEO · 2,000–35,786</div><div class="scale-label leo">LEO · &lt;2,000</div>
+                <div class="map-ring mr3"></div><div class="map-ring mr2"></div><div class="map-ring mr1"></div>
+                <div class="map-earth"><span></span></div><div class="selected-path" id="selectedOrbitPath"><i></i></div>
+                <small class="not-scale">نمودار برای خوانایی به مقیاس واقعی نیست.</small>
+              </div>
+            </section>
+            <section class="panel orbit-detail-panel" id="orbitDetail"></section>
+            <section class="panel quick-calc">
+              <div class="panel-head"><div><span class="section-kicker">محاسبه سریع</span><h2>مدار دایروی زمین</h2></div><span class="calc-badge">2-BODY</span></div>
+              <label>ارتفاع از سطح زمین <span><output id="altOutput">۴۰۰</output> km</span><input id="altRange" type="range" min="160" max="40000" value="400" step="10"></label>
+              <div class="calc-results"><div><small>سرعت مداری</small><strong id="quickVelocity">۷٫۶۷ <span>km/s</span></strong></div><div><small>دوره تناوب</small><strong id="quickPeriod">۹۲٫۴ <span>min</span></strong></div><div><small>رژیم</small><strong id="quickRegime">LEO</strong></div><div><small>تأخیر یک‌طرفه حداقل</small><strong id="quickLatency">۱٫۳ <span>ms</span></strong></div></div>
+              <div class="formula-note"><code>v = √(μ/r)</code><span>مدل دو جسم؛ اثر J₂ و Drag لحاظ نشده است.</span></div>
+            </section>
+          </div>
+          <section class="panel orbit-taxonomy"><div class="panel-head"><div><span class="section-kicker">ORBIT CLASSIFICATION MAP</span><h2>یک مدار می‌تواند هم‌زمان چند نام داشته باشد</h2></div><small>برای مثال: یک مدار می‌تواند LEO، قطبی، خورشیدآهنگ، تقریباً دایروی و Retrograde باشد.</small></div><div class="orbit-taxonomy-grid"><article><span>بر اساس ارتفاع</span><p>VLEO · LEO · MEO · GEO altitude · High Earth</p></article><article><span>بر اساس میل</span><p>استوایی · مایل · قطبی · Prograde · Retrograde</p></article><article><span>بر اساس شکل</span><p>دایروی · بیضوی · HEO · سهموی · هذلولی</p></article><article><span>بر اساس هم‌زمانی</span><p>خورشیدآهنگ · زمین‌آهنگ · زمین‌ایستا · نیم‌روز‌آهنگ</p></article><article><span>بر اساس نقش</span><p>Parking · Transfer · GTO · Disposal · Graveyard · Frozen orbit</p></article><article><span>فراتر از مدار زمین</span><p>Lagrange · Halo · Lissajous · NRHO · مدار ماه‌مرکز و خورشیدمرکز</p></article></div></section>
+          <section class="panel satellite-live-panel">
+            <div class="panel-head"><div><span class="section-kicker">OMM زنده</span><h2>نمونه اشیای مداری</h2></div><select id="satGroup"><option value="stations">ایستگاه‌های فضایی</option><option value="weather">هواشناسی</option><option value="gps-ops">GPS عملیاتی</option><option value="galileo">Galileo</option><option value="last-30-days">پرتاب ۳۰ روز اخیر</option></select></div>
+            <div class="sat-table-wrap" id="satelliteTable"><div class="skeleton-line"></div></div>
+          </section>
+        </section>
+
+        <!-- Satellite encyclopedia -->
+        <section class="view" id="view-satellites" data-no-auto-translate data-title="دانشنامه ماهواره‌ها" data-eyebrow="فضاپیما و مأموریت" data-title-en="Satellite Encyclopedia" data-eyebrow-en="Spacecraft & Missions">
+          <header class="page-hero compact satellite-page-hero"><div><span class="section-kicker">SATELLITE MISSION ATLAS</span><h1 data-bi-fa="ماهواره چیست و چرا در آن مدار قرار می‌گیرد؟" data-bi-en="What is a satellite—and why does it use that orbit?">ماهواره چیست و چرا در آن مدار قرار می‌گیرد؟</h1><p data-bi-fa="نوع محموله، پوشش موردنیاز، تأخیر، تفکیک، توان و محیط تابشی با هم مدار مناسب را تعیین می‌کنند. در این دانشنامه انواع ماهواره، کاربرد، اجزا و منطق انتخاب مدار را بررسی کنید." data-bi-en="Payload type, coverage, latency, resolution, power and radiation jointly determine the right orbit. Explore satellite classes, applications, components and the logic behind orbit selection.">نوع محموله، پوشش موردنیاز، تأخیر، تفکیک، توان و محیط تابشی با هم مدار مناسب را تعیین می‌کنند. در این دانشنامه انواع ماهواره، کاربرد، اجزا و منطق انتخاب مدار را بررسی کنید.</p></div><div class="satellite-hero-badge"><svg><use href="#i-satellite"/></svg><div><strong id="satTypeCount">۸</strong><span data-bi-fa="خانواده مأموریتی" data-bi-en="mission families">خانواده مأموریتی</span></div></div></header>
+
+          <div class="satellite-section-nav"><button class="active" data-sat-section="types" data-bi-fa="انواع و کاربردها" data-bi-en="Types & uses">انواع و کاربردها</button><button data-sat-section="anatomy" data-bi-fa="اجزای ماهواره" data-bi-en="Satellite anatomy">اجزای ماهواره</button><button data-sat-section="model" data-bi-fa="مدل سه‌بعدی" data-bi-en="3D model">مدل سه‌بعدی</button><button data-sat-section="compare" data-bi-fa="مقایسه معماری" data-bi-en="Architecture comparison">مقایسه معماری</button><button data-sat-section="mission" data-bi-fa="ماموریت ← مدار" data-bi-en="Mission → orbit">ماموریت ← مدار</button></div>
+
+          <section class="satellite-subview active" id="sat-section-types">
+            <div class="section-title-row"><div><span class="section-kicker">MISSION CLASSIFICATION</span><h2 data-bi-fa="انواع ماهواره بر اساس مأموریت" data-bi-en="Satellite types by mission">انواع ماهواره بر اساس مأموریت</h2></div><small data-bi-fa="یک ماهواره می‌تواند بیش از یک نقش داشته باشد." data-bi-en="One satellite may serve more than one role.">یک ماهواره می‌تواند بیش از یک نقش داشته باشد.</small></div>
+            <div class="satellite-type-grid" id="satelliteTypeGrid"></div>
+            <article class="panel satellite-type-detail" id="satelliteTypeDetail"></article>
+          </section>
+
+          <section class="satellite-subview" id="sat-section-anatomy">
+            <div class="section-title-row"><div><span class="section-kicker">INTERACTIVE SPACECRAFT BUS</span><h2 data-bi-fa="کالبدشناسی یک ماهواره سه‌محوره" data-bi-en="Anatomy of a three-axis-stabilized satellite">کالبدشناسی یک ماهواره سه‌محوره</h2></div><small data-bi-fa="شماره یا نام هر جزء را انتخاب کنید." data-bi-en="Select a numbered component.">شماره یا نام هر جزء را انتخاب کنید.</small></div>
+            <div class="satellite-anatomy-layout">
+              <div class="satellite-anatomy-visual"><img src="images/satellites/satellite-anatomy.svg" alt="نمودار اجزای ماهواره"><div class="anatomy-hotspots" id="anatomyHotspots"></div><span class="visual-disclaimer" data-bi-fa="نمودار عمومی؛ چیدمان واقعی هر مأموریت متفاوت است." data-bi-en="Generic diagram; real mission layouts differ.">نمودار عمومی؛ چیدمان واقعی هر مأموریت متفاوت است.</span></div>
+              <aside class="satellite-component-list" id="satelliteComponentList"></aside>
+              <article class="panel satellite-component-detail" id="satelliteComponentDetail"></article>
+            </div>
+          </section>
+
+          <section class="satellite-subview" id="sat-section-model">
+            <div class="section-title-row"><div><span class="section-kicker">INTERACTIVE 3D SPACECRAFT</span><h2 data-bi-fa="ماهواره را بگیرید و در سه بعد بچرخانید" data-bi-en="Drag to rotate the spacecraft in 3D">ماهواره را بگیرید و در سه بعد بچرخانید</h2></div><small data-bi-fa="با ماوس یا لمس بچرخانید؛ با چرخ ماوس بزرگ‌نمایی کنید." data-bi-en="Rotate with mouse or touch; use the wheel to zoom.">با ماوس یا لمس بچرخانید؛ با چرخ ماوس بزرگ‌نمایی کنید.</small></div>
+            <div class="sat3d-layout">
+              <div class="sat3d-viewport" id="sat3dViewport">
+                <div class="sat3d-stars"></div><div class="sat3d-earth"></div>
+                <div class="satellite-3d" id="satellite3d" aria-label="مدل سه بعدی ماهواره">
+                  <div class="sat3d-bus"><div class="cube-face front"><span>BUS</span><i class="payload-lens"></i></div><div class="cube-face back"></div><div class="cube-face right"></div><div class="cube-face left"></div><div class="cube-face top"><b>PAYLOAD</b></div><div class="cube-face bottom"><i></i><i></i><i></i><i></i></div></div>
+                  <div class="sat3d-panel panel-left"><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="sat3d-panel panel-right"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+                  <div class="sat3d-dish"><i></i></div><div class="sat3d-boom"></div>
+                </div>
+                <div class="sat3d-axis"><span class="x">X</span><span class="y">Y</span><span class="z">Z</span></div>
+                <div class="sat3d-hint" id="sat3dHint">↔ DRAG TO ROTATE</div>
+              </div>
+              <aside class="sat3d-controls"><span class="section-kicker">VIEW CONTROLS</span><div class="view-presets"><button data-3d-view="front">FRONT</button><button data-3d-view="top">TOP</button><button data-3d-view="iso" class="active">ISO</button><button data-3d-view="reset">RESET</button></div><label><span data-bi-fa="بزرگ‌نمایی" data-bi-en="Zoom">بزرگ‌نمایی</span><input id="sat3dZoom" type="range" min="65" max="145" value="100"></label><span class="section-kicker component-picker-title">COMPONENT FOCUS</span><div class="sat3d-component-picker" id="sat3dComponentPicker"></div></aside>
+              <article class="panel sat3d-info" id="sat3dInfo"></article>
+            </div>
+          </section>
+
+          <section class="satellite-subview" id="sat-section-compare">
+            <div class="section-title-row"><div><span class="section-kicker">ARCHITECTURE TRADE STUDY</span><h2 data-bi-fa="دو معماری ماهواره را کنار هم مقایسه کنید" data-bi-en="Compare two satellite architectures side by side">دو معماری ماهواره را کنار هم مقایسه کنید</h2></div><small data-bi-fa="اعداد کلاس مرجع و تقریبی‌اند؛ برای طراحی به سند مأموریت مراجعه کنید." data-bi-en="Reference-class values are approximate; consult mission documentation for design.">اعداد کلاس مرجع و تقریبی‌اند؛ برای طراحی به سند مأموریت مراجعه کنید.</small></div>
+            <div class="architecture-selectors"><label><span data-bi-fa="معماری A" data-bi-en="Architecture A">معماری A</span><select id="architectureA"></select></label><div class="compare-vs">VS</div><label><span data-bi-fa="معماری B" data-bi-en="Architecture B">معماری B</span><select id="architectureB"></select></label></div>
+            <div class="architecture-comparison" id="architectureComparison"></div>
+            <section class="panel architecture-trade-note"><svg><use href="#i-info"/></svg><div><strong data-bi-fa="چگونه مقایسه را بخوانیم؟" data-bi-en="How to read this comparison">چگونه مقایسه را بخوانیم؟</strong><p data-bi-fa="بزرگ‌تر بودن جرم، توان یا نرخ داده به معنی بهتر بودن نیست. معماری خوب، نیاز مأموریت را با حاشیه مناسب، ریسک قابل‌قبول و کمترین پیچیدگی غیرضروری برآورده می‌کند." data-bi-en="More mass, power or data rate does not automatically mean better. A good architecture satisfies mission needs with margin, acceptable risk and minimal unnecessary complexity.">بزرگ‌تر بودن جرم، توان یا نرخ داده به معنی بهتر بودن نیست. معماری خوب، نیاز مأموریت را با حاشیه مناسب، ریسک قابل‌قبول و کمترین پیچیدگی غیرضروری برآورده می‌کند.</p></div></section>
+          </section>
+
+          <section class="satellite-subview" id="sat-section-mission">
+            <div class="section-title-row"><div><span class="section-kicker">MISSION–ORBIT MATCHER</span><h2 data-bi-fa="ماموریت را انتخاب کنید؛ منطق مدار را ببینید" data-bi-en="Choose a mission; understand its orbit">ماموریت را انتخاب کنید؛ منطق مدار را ببینید</h2></div><small data-bi-fa="پیشنهاد مقدماتی است؛ طراحی نهایی به تحلیل کامل نیاز دارد." data-bi-en="Preliminary guidance only; final design requires full analysis.">پیشنهاد مقدماتی است؛ طراحی نهایی به تحلیل کامل نیاز دارد.</small></div>
+            <div class="mission-orbit-tool">
+              <aside class="mission-selector" id="missionSelector"></aside>
+              <article class="mission-recommendation" id="missionRecommendation"></article>
+              <div class="mission-orbit-visual" id="missionOrbitVisual"><div class="mo-earth"><span></span></div><div class="mo-ring leo"></div><div class="mo-ring meo"></div><div class="mo-ring geo"></div><div class="mo-selected"><i></i></div><span class="mo-label l1">LEO</span><span class="mo-label l2">MEO</span><span class="mo-label l3">GEO</span></div>
+            </div>
+            <section class="panel mission-orbit-matrix"><div class="panel-head"><div><span class="section-kicker">QUICK REFERENCE</span><h2 data-bi-fa="ماتریس مأموریت و مدار" data-bi-en="Mission–orbit matrix">ماتریس مأموریت و مدار</h2></div></div><div id="missionOrbitMatrix"></div></section>
+          </section>
+
+          <div class="satellite-source-strip"><svg><use href="#i-source"/></svg><div><strong data-bi-fa="مبنای علمی این بخش" data-bi-en="Technical basis">مبنای علمی این بخش</strong><p data-bi-fa="ESA، NASA، GPS.gov و NOAA؛ پیوند منابع در کارت‌ها و صفحه منابع نرم‌افزار ثبت شده است." data-bi-en="ESA, NASA, GPS.gov and NOAA; source links are recorded in cards and the Sources view.">ESA، NASA، GPS.gov و NOAA؛ پیوند منابع در کارت‌ها و صفحه منابع نرم‌افزار ثبت شده است.</p></div><button class="text-btn" data-view="sources"><span data-bi-fa="مشاهده منابع" data-bi-en="View sources">مشاهده منابع</span><svg><use href="#i-arrow"/></svg></button></div>
+        </section>
+
+        <!-- NASA / ESA live updates -->
+        <section class="view" id="view-agencies" data-no-auto-translate data-title="NASA / ESA زنده" data-eyebrow="مرکز به‌روزرسانی آژانس‌ها" data-title-en="NASA / ESA Live" data-eyebrow-en="Agency Update Center">
+          <header class="page-hero compact agency-page-hero"><div><span class="section-kicker"><i class="live-dot"></i> OFFICIAL AGENCY FEEDS</span><h1 data-bi-fa="جدیدترین مطالب رسمی NASA و ESA" data-bi-en="Latest official updates from NASA and ESA">جدیدترین مطالب رسمی NASA و ESA</h1><p data-bi-fa="این صفحه مستقیماً Feedهای رسمی دو آژانس را می‌خواند. عنوان و متن انگلیسی مرجع باقی می‌ماند و ترجمه خودکار فارسی در کنار آن نمایش داده می‌شود." data-bi-en="This page reads the agencies' official feeds directly. Original English remains authoritative, with an automatic Persian translation displayed alongside it.">این صفحه مستقیماً Feedهای رسمی دو آژانس را می‌خواند. عنوان و متن انگلیسی مرجع باقی می‌ماند و ترجمه خودکار فارسی در کنار آن نمایش داده می‌شود.</p></div><div class="agency-live-card"><span class="agency-pulse"></span><div><strong id="agencyLiveState">LIVE SYNC</strong><small id="agencyLastSync">در حال اتصال…</small></div></div></header>
+          <div class="agency-toolbar"><div class="agency-filters"><button class="active" data-agency-filter="all">NASA + ESA</button><button data-agency-filter="NASA">NASA</button><button data-agency-filter="ESA">ESA</button></div><label class="inline-search"><svg><use href="#i-search"/></svg><input id="agencySearch" type="search" placeholder="جست‌وجو در عناوین و توضیحات…"></label><button class="btn ghost small" id="refreshAgencyFeed"><svg><use href="#i-refresh"/></svg><span data-bi-fa="همگام‌سازی اکنون" data-bi-en="Sync now">همگام‌سازی اکنون</span></button></div>
+          <div class="agency-sync-strip"><div><span class="status-led"></span><strong data-bi-fa="همگام‌سازی خودکار" data-bi-en="Automatic synchronization">همگام‌سازی خودکار</strong><small data-bi-fa="هنگام ورود و سپس هر ۳ دقیقه تا زمانی که برنامه باز است" data-bi-en="On entry, then every 3 minutes while the app remains open">هنگام ورود و سپس هر ۳ دقیقه تا زمانی که برنامه باز است</small></div><div><strong id="agencyItemCount">—</strong><small data-bi-fa="رکورد تازه از منابع رسمی" data-bi-en="recent official records">رکورد تازه از منابع رسمی</small></div><div><strong>RSS</strong><small data-bi-fa="بدون Scraping غیررسمی" data-bi-en="No unofficial scraping">بدون Scraping غیررسمی</small></div></div>
+          <section class="agency-featured" id="agencyFeatured"><div class="skeleton-line"></div></section>
+          <div class="section-title-row"><div><span class="section-kicker">LIVE TIMELINE</span><h2 data-bi-fa="خط زمانی انتشار" data-bi-en="Publication timeline">خط زمانی انتشار</h2></div><small id="agencyFreshness">—</small></div>
+          <div class="agency-news-grid" id="agencyNewsGrid"><div class="skeleton-line"></div><div class="skeleton-line"></div><div class="skeleton-line"></div></div>
+          <button class="btn ghost small agency-load-more" id="agencyLoadMore" hidden><span data-bi-fa="نمایش مطالب بیشتر" data-bi-en="Show more items">نمایش مطالب بیشتر</span><svg><use href="#i-arrow"/></svg></button>
+          <div class="agency-method-note"><svg><use href="#i-info"/></svg><div><strong data-bi-fa="درباره برخط‌بودن" data-bi-en="About live synchronization">درباره برخط‌بودن</strong><p data-bi-fa="RSS یک Feed انتشار است، نه Webhook. بنابراین رکورد تازه حداکثر در چرخه همگام‌سازی بعدی ظاهر می‌شود. اگر منبع موقتاً قطع باشد، آخرین پاسخ معتبر از Cache نمایش داده می‌شود." data-bi-en="RSS is a publication feed, not a webhook. New items appear on the next synchronization cycle. If a source is temporarily unavailable, the last verified cached response is shown.">RSS یک Feed انتشار است، نه Webhook. بنابراین رکورد تازه حداکثر در چرخه همگام‌سازی بعدی ظاهر می‌شود. اگر منبع موقتاً قطع باشد، آخرین پاسخ معتبر از Cache نمایش داده می‌شود.</p></div><div class="agency-source-links"><a href="https://www.nasa.gov/news-release/feed/" target="_blank" rel="noreferrer">NASA RSS <svg><use href="#i-external"/></svg></a><a href="https://www.esa.int/rssfeed/TopNews" target="_blank" rel="noreferrer">ESA Top News <svg><use href="#i-external"/></svg></a></div></div>
+        </section>
+
+        <!-- Launch database -->
+        <section class="view" id="view-launches" data-title="بانک پرتاب‌ها" data-eyebrow="رصدخانه جهانی">
+          <header class="page-hero compact"><div><span class="section-kicker"><i class="live-dot"></i> LIVE LAUNCH DATABASE</span><h1>تاریخ پرتاب، از امروز به عقب</h1><p>داده Launch Library 2 با ترتیب نزولی زمان. جزئیات هر رکورد را باز کنید و منبع داده را ببینید.</p></div><div class="database-count"><strong id="launchDbCount">—</strong><span>رکورد قابل پیمایش در منبع</span><small id="launchDbUpdated">در حال به‌روزرسانی…</small></div></header>
+          <section class="panel database-panel">
+            <div class="database-toolbar"><label class="inline-search"><svg><use href="#i-search"/></svg><input id="launchSearch" type="search" placeholder="جست‌وجو در نتایج بارگذاری‌شده…"></label><select id="launchOrbitFilter"><option value="all">همه مدارها</option><option value="LEO">LEO</option><option value="GTO">GTO</option><option value="GEO">GEO</option><option value="SSO">SSO</option><option value="MEO">MEO</option></select><select id="launchStatusFilter"><option value="all">همه نتایج</option><option value="Success">موفق</option><option value="Failure">ناموفق</option></select><button class="icon-btn" id="refreshLaunches" title="تازه‌سازی"><svg><use href="#i-refresh"/></svg></button></div>
+            <div class="launch-table-wrap"><table class="data-table"><thead><tr><th>مأموریت / زمان UTC</th><th>پرتابگر</th><th>ارائه‌دهنده</th><th>مدار</th><th>کشور / پایگاه</th><th>نتیجه</th><th></th></tr></thead><tbody id="launchTableBody"></tbody></table></div>
+            <div class="table-empty" id="launchEmpty" hidden>نتیجه‌ای با این فیلتر پیدا نشد.</div>
+            <div class="table-footer"><span id="launchShown">—</span><button class="btn ghost small" id="loadMoreLaunches">بارگذاری رکوردهای قدیمی‌تر <svg><use href="#i-history"/></svg></button></div>
+          </section>
+        </section>
+
+        <!-- Failures -->
+        <section class="view" id="view-failures" data-title="شکست‌ها و درس‌ها" data-eyebrow="آزمایشگاه قابلیت اطمینان">
+          <header class="page-hero compact danger-hero"><div><span class="section-kicker">FAILURE ≠ ANOMALY</span><h1>از شکست، علت بساز؛ نه داستان</h1><p>رخداد، علت نزدیک، علت ریشه‌ای و عامل سازمانی یک چیز نیستند. سطح قطعیت هر پرونده صریحاً نمایش داده می‌شود.</p></div><div class="failure-taxonomy"><span><i class="f1"></i> شکست پرتاب</span><span><i class="f2"></i> شکست جزئی/بازیابی</span><span><i class="f3"></i> آزمون زمینی</span></div></header>
+          <div class="method-banner"><svg><use href="#i-info"/></svg><div><strong>قاعده پژوهشی مدار</strong><p>وقتی گزارش رسمی نهایی منتشر نشده، علت با برچسب «تحقیق باز» ثبت می‌شود. مشاهده ویدئویی، تأیید علت ریشه‌ای نیست.</p></div><button class="text-btn" data-view="sources">روش اعتبارسنجی <svg><use href="#i-arrow"/></svg></button></div>
+          <div class="cause-coverage-notice"><span>پوشش علت در نسخه ۰٫۲</span><p>فهرست زنده، همه رکوردهای شکست Launch Library را به‌ترتیب زمان نشان می‌دهد؛ زنجیره علت تفصیلی فقط برای پرونده‌هایی ارائه می‌شود که گزارش یا شواهد معتبر کافی دارند. «نامعلوم» یک پاسخ علمی معتبر است و با حدس پر نمی‌شود.</p><strong><b id="deepCaseCount">—</b> پرونده عمیق</strong></div>
+          <div class="failure-layout">
+            <section>
+              <div class="section-title-row"><div><span class="section-kicker"><i class="live-dot"></i> فهرست زنده</span><h2>آخرین شکست‌های مداری ثبت‌شده</h2></div><small>جدید ← قدیم</small></div>
+              <div class="live-failure-list" id="liveFailureList"><div class="skeleton-line"></div><div class="skeleton-line"></div></div>
+              <button class="btn ghost small full" id="moreFailures">نمایش شکست‌های قدیمی‌تر</button>
+            </section>
+            <aside class="panel failure-guide"><span class="section-kicker">FAULT TREE STARTER</span><h2>پنج سؤال پیش از قضاوت</h2><ol><li><b>چه رخ داد؟</b><span>داده مشاهده‌شده، بدون تفسیر</span></li><li><b>در کدام فاز؟</b><span>زمان، پیکربندی و محیط</span></li><li><b>کدام نیاز برآورده نشد؟</b><span>معیار موفقیت از پیش تعریف‌شده</span></li><li><b>مکانیزم فیزیکی چه بود؟</b><span>زنجیره انتقال خطا</span></li><li><b>چرا کنترل‌ها نگرفتند؟</b><span>طراحی، آزمون، ساخت یا سازمان</span></li></ol><button class="btn primary small" data-view="learning">ماژول تحلیل شکست</button></aside>
+          </div>
+          <div class="section-title-row cases-head"><div><span class="section-kicker">DEEP CASES</span><h2>پرونده‌های منتخب با درس مهندسی</h2></div><div class="case-filters"><button class="filter-chip active" data-case="all">همه</button><button class="filter-chip" data-case="شکست پرتاب">پرتاب</button><button class="filter-chip" data-case="شکست بازیابی/آزمایشی">بازیابی</button><button class="filter-chip" data-case="حادثه آزمایش زمینی">آزمون زمینی</button></div></div>
+          <div class="failure-cases" id="failureCases"></div>
+        </section>
+
+        <!-- Launchers -->
+        <section class="view" id="view-launchers" data-title="دانشنامه پرتابگرها" data-eyebrow="وسایل پرتاب">
+          <header class="page-hero compact"><div><span class="section-kicker">LAUNCH VEHICLE ENCYCLOPEDIA</span><h1>پرتابگرها را با مأموریت مقایسه کن</h1><p>معماری مراحل، نوع پیشرانه، موتور، ظرفیت و بازیابی. ظرفیت‌ها تقریبی‌اند و با مدار/عرض پایگاه/پروفایل بازیابی تغییر می‌کنند.</p></div><div class="compare-tray"><span>مقایسه انتخاب‌ها</span><div id="compareSelections"><small>حداکثر ۳ پرتابگر</small></div><button class="btn primary small" id="compareBtn" disabled>مقایسه</button></div></header>
+          <div class="launcher-grid" id="launcherGrid"></div>
+        </section>
+
+        <!-- Summarizer -->
+        <section class="view" id="view-summarizer" data-title="خلاصه‌ساز ویدئو" data-eyebrow="آزمایشگاه مطالعه سریع">
+          <header class="page-hero compact"><div><span class="section-kicker">YOUTUBE → STRUCTURED NOTES</span><h1>کمتر تماشا کن؛ دقیق‌تر یاد بگیر</h1><p>لینک ویدئوی دارای کپشن را وارد کنید تا متن، خلاصه فارسی، فصل‌بندی و اصطلاحات فنی استخراج شود.</p></div><div class="beta-note"><span>بتا</span><p>بدون کلید API برای زیرنویس عمومی کار می‌کند؛ دسترسی YouTube ممکن است در برخی شبکه‌ها محدود باشد.</p></div></header>
+          <section class="summarizer-shell">
+            <div class="summary-input-panel">
+              <div class="input-orbit"><span class="youtube-core"><svg><use href="#i-video"/></svg></span><i></i><i></i></div>
+              <h2>لینک ویدئو را وارد کنید</h2><p>ویدئوهای دانشگاهی، مستندات مأموریت و تحلیل پرتاب بهترین نتیجه را می‌دهند.</p>
+              <form id="summaryForm"><label><span>YouTube URL</span><div class="url-input"><svg><use href="#i-video"/></svg><input id="youtubeUrl" type="url" placeholder="https://youtube.com/watch?v=…" required><button class="btn primary" type="submit">ساخت یادداشت <svg><use href="#i-arrow"/></svg></button></div></label></form>
+              <div class="summary-options"><label><input type="checkbox" checked disabled><span>خلاصه نکته‌ای فارسی</span></label><label><input type="checkbox" checked disabled><span>فصل‌بندی زمانی</span></label><label><input type="checkbox" checked disabled><span>واژه‌نامه فنی</span></label></div>
+              <div class="try-demo"><span>می‌خواهید ابتدا نتیجه را ببینید؟</span><button id="demoSummary">اجرای نمونه ۷۹ ثانیه‌ای</button></div>
+              <div class="privacy-note"><svg><use href="#i-info"/></svg><span>فقط URL به سرویس محلی ارسال می‌شود. ویدئو دانلود نمی‌شود؛ کپشن عمومی پردازش می‌گردد.</span></div>
+            </div>
+            <div class="summary-output-panel" id="summaryOutput">
+              <div class="empty-output"><div class="note-stack"><i></i><i></i><i></i></div><h3>یادداشت ساخت‌یافته اینجا ظاهر می‌شود</h3><p>خلاصه جای مشاهده بخش‌های حساس یا مراجعه به منبع اصلی را نمی‌گیرد.</p></div>
+            </div>
+          </section>
+        </section>
+
+        <!-- Tools -->
+        <section class="view" id="view-tools" data-title="ابزارهای مهندسی" data-eyebrow="آزمایشگاه محاسبات">
+          <header class="page-hero compact"><div><span class="section-kicker">ENGINEERING SANDBOX</span><h1>اعداد را لمس کن</h1><p>محاسبه‌گرهای مقدماتی برای فهم شهودی. خروجی‌ها تحلیل طراحی نهایی یا شبیه‌سازی اغتشاشات نیستند.</p></div><div class="constant-chip"><span>ثابت گرانش زمین</span><code>μ = 398600.4418 km³/s²</code></div></header>
+          <div class="tool-tabs"><button class="active" data-tool="orbit">مدار دایروی</button><button data-tool="hohmann">انتقال هوهمن</button><button data-tool="rocket-eq">معادله موشک</button></div>
+          <div class="tool-panels">
+            <section class="tool-panel active" id="tool-orbit">
+              <div class="tool-inputs"><span class="section-kicker">CIRCULAR ORBIT</span><h2>سرعت و دوره مدار</h2><label>ارتفاع h <div><input id="toolAltitude" type="number" value="400" min="0" max="100000"><span>km</span></div></label><label>شعاع زمین R <div><input value="6378.137" disabled><span>km</span></div></label><button class="btn primary" id="calcOrbit">محاسبه</button><div class="equation-card"><code>r = R⊕ + h<br>v = √(μ/r)<br>T = 2π√(r³/μ)</code></div></div>
+              <div class="tool-output"><div class="output-visual circular"><div class="tv-orbit"><i></i></div><span>r</span></div><div class="big-result"><small>سرعت مداری</small><strong id="toolOrbitV">7.6686 <span>km/s</span></strong></div><div class="result-grid"><div><span>دوره</span><strong id="toolOrbitT">92.56 min</strong></div><div><span>دور در روز</span><strong id="toolOrbitDay">15.56</strong></div><div><span>انرژی ویژه</span><strong id="toolOrbitE">−29.40 km²/s²</strong></div><div><span>رژیم تقریبی</span><strong id="toolOrbitRegime">LEO</strong></div></div><p class="assumption">فرض‌ها: زمین کروی، مدار دایروی، مدل دو جسم، بدون مقاومت جو و J₂.</p></div>
+            </section>
+            <section class="tool-panel" id="tool-hohmann">
+              <div class="tool-inputs"><span class="section-kicker">HOHMANN TRANSFER</span><h2>انتقال میان دو مدار دایروی</h2><label>ارتفاع مدار آغازین h₁ <div><input id="h1" type="number" value="300" min="0"><span>km</span></div></label><label>ارتفاع مدار پایانی h₂ <div><input id="h2" type="number" value="35786" min="0"><span>km</span></div></label><button class="btn primary" id="calcHohmann">محاسبه انتقال</button><div class="equation-card"><code>aₜ=(r₁+r₂)/2<br>Δv₁=vₜ,p−v₁<br>Δv₂=v₂−vₜ,a</code></div></div>
+              <div class="tool-output"><div class="output-visual hohmann"><div class="hv h-inner"></div><div class="hv h-outer"></div><div class="h-transfer"><i></i></div></div><div class="big-result"><small>دلتاوی کل</small><strong id="hohmannTotal">3.89 <span>km/s</span></strong></div><div class="result-grid"><div><span>مانور اول Δv₁</span><strong id="dv1">2.43 km/s</strong></div><div><span>مانور دوم Δv₂</span><strong id="dv2">1.46 km/s</strong></div><div><span>زمان انتقال</span><strong id="transferTime">5.26 h</strong></div><div><span>نیم‌محور انتقال</span><strong id="transferA">24,371 km</strong></div></div><p class="assumption">صفحه دو مدار یکسان فرض شده؛ اتلاف‌ها و تغییر میل لحاظ نشده است.</p></div>
+            </section>
+            <section class="tool-panel" id="tool-rocket-eq">
+              <div class="tool-inputs"><span class="section-kicker">TSIOLKOVSKY</span><h2>بودجه ایده‌آل دلتاوی</h2><label>تکانه ویژه Isp <div><input id="isp" type="number" value="350" min="1"><span>s</span></div></label><label>جرم اولیه m₀ <div><input id="m0" type="number" value="10000" min="1"><span>kg</span></div></label><label>جرم نهایی mf <div><input id="mf" type="number" value="3000" min="1"><span>kg</span></div></label><button class="btn primary" id="calcRocket">محاسبه دلتاوی</button><div class="equation-card"><code>Δv = Isp · g₀ · ln(m₀/mf)</code></div></div>
+              <div class="tool-output"><div class="output-visual mass-stack"><div style="height:70%"></div><span>پیشرانه</span><i style="height:30%"></i><b>جرم نهایی</b></div><div class="big-result"><small>دلتاوی ایده‌آل</small><strong id="rocketDv">4.13 <span>km/s</span></strong></div><div class="result-grid"><div><span>نسبت جرمی</span><strong id="massRatio">3.333</strong></div><div><span>کسر پیشرانه</span><strong id="propFraction">70.0%</strong></div><div><span>سرعت مؤثر خروج</span><strong id="ve">3.43 km/s</strong></div><div><span>g₀</span><strong>9.80665 m/s²</strong></div></div><p class="assumption">رانش، گرانش، Drag، Steering Loss و مرحله‌بندی در این خروجی ایده‌آل لحاظ نشده‌اند.</p></div>
+            </section>
+          </div>
+        </section>
+
+        <!-- Sources -->
+        <section class="view" id="view-sources" data-title="منابع و روش پژوهش" data-eyebrow="شفافیت و استناد">
+          <header class="page-hero compact"><div><span class="section-kicker">SOURCE PROVENANCE</span><h1>هر عدد باید ریشه داشته باشد</h1><p>منابع بر پایه نقش دسته‌بندی شده‌اند: مرجع رسمی برای نتیجه بررسی، داده‌باز برای تاریخچه، و کتاب/مقاله برای آموزش.</p></div><div class="source-score"><span>سلسله‌مراتب ترجیح</span><div><b>۱</b> گزارش رسمی <i></i><b>۲</b> داده پژوهشی <i></i><b>۳</b> رسانه تخصصی</div></div></header>
+          <div class="research-method">
+            <article><span>01</span><div><strong>تعریف دقیق رکورد</strong><p>پرتاب مداری، شکست پرتاب، شکست جزئی، شکست بازیابی و آزمون زمینی جدا می‌شوند.</p></div></article>
+            <article><span>02</span><div><strong>ثبت زمان و نسخه</strong><p>داده زنده ممکن است اصلاح شود؛ زمان واکشی و URL منبع در پاسخ API نگه‌داری می‌شود.</p></div></article>
+            <article><span>03</span><div><strong>سطح قطعیت</strong><p>علت نهایی فقط پس از گزارش معتبر ثبت می‌شود؛ در غیر این صورت «تحقیق باز» است.</p></div></article>
+            <article><span>04</span><div><strong>بازبینی انسانی</strong><p>ترجمه و خلاصه خودکار برای آموزش است و ادعاهای حساس باید با متن اصلی مقابله شوند.</p></div></article>
+          </div>
+          <div class="source-toolbar"><label class="inline-search"><svg><use href="#i-search"/></svg><input id="sourceSearch" type="search" placeholder="جست‌وجوی منبع یا موضوع…"></label><div><button class="filter-chip active" data-source="all">همه</button><button class="filter-chip" data-source="FA">فارسی</button><button class="filter-chip" data-source="EN">انگلیسی</button><button class="filter-chip" data-source="رسمی">رسمی</button></div></div>
+          <div class="source-grid" id="sourceGrid"></div>
+          <div class="citation-box"><svg><use href="#i-info"/></svg><div><strong>درباره جامع‌بودن</strong><p>نسخه اول، بانک زنده LL2 را برای مرور و GCAT را به‌عنوان مسیر توسعه تاریخچه جامع به‌کار می‌گیرد. «تمام جزئیات همه مأموریت‌ها» یک پروژه داده‌ای پیوسته است، نه یک فهرست ثابت؛ بنابراین پوشش و تاریخ به‌روزرسانی همیشه نمایش داده می‌شود.</p></div></div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <div class="knowledge-reader" id="knowledgeReader" aria-hidden="true">
+    <header class="knowledge-reader-top"><button class="icon-btn" id="closeKnowledgeReader"><svg><use href="#i-close"/></svg></button><div><span id="knowledgeReaderDomain">کتابخانه دانش</span><strong id="knowledgeReaderTitle">موضوع</strong></div><span class="knowledge-reader-level" id="knowledgeReaderLevel">مقدماتی</span></header>
+    <div class="knowledge-reader-layout"><main class="knowledge-reader-main" id="knowledgeReaderMain"></main><aside class="knowledge-reader-side"><span class="section-kicker">RELATED TOPICS</span><div id="relatedKnowledgeTopics"></div><section><strong>ترتیب مطالعه</strong><p>ابتدا پیش‌نیازها را مرور کنید، سپس روابط و مثال را بررسی و در پایان خروجی‌های یادگیری را برای خود توضیح دهید.</p></section></aside></div>
+  </div>
+
+  <div class="lesson-reader" id="lessonReader" aria-hidden="true">
+    <header class="reader-topbar">
+      <button class="icon-btn" id="closeReader" aria-label="بازگشت به مسیر یادگیری"><svg><use href="#i-close"/></svg></button>
+      <div class="reader-brand"><span>آکادمی مدار</span><strong id="readerModuleTitle">درس‌نامه</strong></div>
+      <div class="reader-progress"><span id="readerProgressText">فصل ۱</span><div><i id="readerProgressBar"></i></div></div>
+      <button class="btn ghost small" id="markModuleDone">علامت‌گذاری تکمیل</button>
+    </header>
+    <div class="reader-layout">
+      <aside class="reader-chapters" id="readerChapters"></aside>
+      <main class="reader-content" id="readerContent"></main>
+      <aside class="reader-notes">
+        <div class="reader-note-card"><span>روش مطالعه</span><p>رابطه‌ها را همراه با فرض‌هایشان بخوانید. سپس مثال را بدون نگاه‌کردن دوباره حل کنید.</p></div>
+        <div class="reader-note-card glossary-card"><span>واژه‌های این فصل</span><div id="readerGlossary"></div></div>
+      </aside>
+    </div>
+  </div>
+
+  <div class="modal" id="detailModal" aria-hidden="true"><div class="modal-scrim" data-close-modal></div><div class="modal-panel"><button class="modal-close" data-close-modal aria-label="بستن"><svg><use href="#i-close"/></svg></button><div id="modalContent"></div></div></div>
+  <div class="network-banner" id="networkBanner" hidden><span></span><strong>حالت آفلاین</strong><small>آخرین داده‌های معتبر نمایش داده می‌شوند.</small></div>
+  <div class="toast-stack" id="toastStack" aria-live="polite"></div>
+
+  <script src="data.js"></script>
+  <script src="launch-detail.js"></script>
+  <script src="orbit-detail.js"></script>
+  <script src="learning-content.js"></script>
+  <script src="satellite-data.js"></script>
+  <script src="knowledge-data.js"></script>
+  <script src="failure-causes.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
