@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import json
 import math
+import hashlib
 import html as html_lib
 import os
 import re
@@ -24,6 +25,7 @@ from datetime import timezone
 from email.utils import parsedate_to_datetime
 from http import HTTPStatus
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
+from html.parser import HTMLParser
 from pathlib import Path
 from typing import Any
 
@@ -31,9 +33,15 @@ ROOT = Path(__file__).resolve().parent
 VENDOR = ROOT / "vendor"
 if VENDOR.exists():
     sys.path.insert(0, str(VENDOR))
-PUBLIC = ROOT / "public"
+# Prefer the full-backend repository layout (static files in public/).
+# Fall back to repository-root static files for compatibility with older
+# GitHub/Vercel uploads where index.html was placed beside app.py.
+PUBLIC_DIR = ROOT / "public"
+PUBLIC = PUBLIC_DIR if (PUBLIC_DIR / "index.html").is_file() else ROOT
+if not (PUBLIC / "index.html").is_file():
+    raise RuntimeError("Frontend entry file not found: expected public/index.html or index.html")
 PORT = int(os.environ.get("PORT", "8000"))
-USER_AGENT = "Madar-Space-Learning/0.7 (+educational prototype)"
+USER_AGENT = "Madar-Space-Learning/0.18-experimental (+educational prototype)"
 LL2 = "https://ll.thespacedevs.com/2.3.0"
 CACHE: dict[str, tuple[float, Any]] = {}
 IMAGE_CACHE: dict[str, tuple[float, bytes, str]] = {}
@@ -46,6 +54,8 @@ AGENCY_FALLBACK_FILE = PUBLIC / "agency-feed-fallback.json"
 LAUNCH_FALLBACK_FILE = PUBLIC / "launches-fallback.json"
 FAILURE_FALLBACK_FILE = PUBLIC / "failures-fallback.json"
 AGENCY_FEED_CACHE: dict[str, Any] = {}
+AGENCY_ARTICLE_CACHE: dict[str, tuple[float, dict[str, Any]]] = {}
+AGENCY_ARTICLE_CACHE_SECONDS = 21_600
 AGENCY_FEEDS = {
     "nasa": "https://www.nasa.gov/news-release/feed/",
     "esa": "https://www.esa.int/rssfeed/TopNews",
@@ -364,6 +374,348 @@ def agency_feed_api(params: dict[str, list[str]]) -> dict[str, Any]:
     }
 
 
+ARTICLE_VOID_TAGS = {"meta", "link", "img", "br", "hr", "input", "source", "area", "base", "col", "embed", "param", "track", "wbr"}
+ARTICLE_SKIP_TAGS = {"script", "style", "nav", "header", "footer", "aside", "svg", "form", "noscript", "button", "select", "option"}
+ARTICLE_CONTENT_HINTS = ("entry-content", "article-content", "article__content", "article-body", "article_body", "usa-article-content", "wysiwyg", "rich-text", "story-body", "content-body")
+ARTICLE_STOP_HEADINGS = {"share", "details", "related terms", "explore more", "discover more topics from nasa", "related content", "you may also like"}
+
+
+class OfficialArticleParser(HTMLParser):
+    """Extract metadata and readable blocks from official NASA/ESA pages."""
+
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.stack: list[tuple[str, bool, bool]] = []
+        self.skip_depth = 0
+        self.content_depth = 0
+        self.current: list[Any] | None = None
+        self.blocks: list[tuple[str, str]] = []
+        self.meta: dict[str, str] = {}
+        self.images: list[str] = []
+        self.title_parts: list[str] = []
+        self.in_title = False
+        self.canonical = ""
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        tag = tag.lower()
+        attributes = {str(key).lower(): (value or "") for key, value in attrs}
+        classes = f"{attributes.get('class', '')} {attributes.get('id', '')}".lower()
+        if tag == "meta":
+            key = (attributes.get("property") or attributes.get("name") or "").lower()
+            value = attributes.get("content", "").strip()
+            if key and value:
+                self.meta[key] = value
+        if tag == "link" and "canonical" in attributes.get("rel", "").lower():
+            self.canonical = attributes.get("href", "").strip()
+        if tag == "title":
+            self.in_title = True
+
+        entered_skip = tag in ARTICLE_SKIP_TAGS
+        entered_content = (tag in {"main", "article"} or any(hint in classes for hint in ARTICLE_CONTENT_HINTS)) and not self.skip_depth
+        if tag not in ARTICLE_VOID_TAGS:
+            self.stack.append((tag, entered_skip, entered_content))
+        if entered_skip:
+            self.skip_depth += 1
+        if entered_content:
+            self.content_depth += 1
+        if tag == "img" and self.content_depth and not self.skip_depth:
+            source = attributes.get("src") or attributes.get("data-src") or attributes.get("data-lazy-src")
+            if source:
+                self.images.append(source)
+        if self.content_depth and not self.skip_depth and tag in {"h1", "h2", "h3", "p", "li", "blockquote"} and self.current is None:
+            self.current = [tag, []]
+        if self.current is not None and tag == "br":
+            self.current[1].append(" ")
+
+    def handle_startendtag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        self.handle_starttag(tag, attrs)
+        self.handle_endtag(tag)
+
+    def handle_data(self, data: str) -> None:
+        if self.in_title:
+            self.title_parts.append(data)
+        if self.current is not None and not self.skip_depth:
+            self.current[1].append(data)
+
+    def handle_endtag(self, tag: str) -> None:
+        tag = tag.lower()
+        if tag == "title":
+            self.in_title = False
+        if self.current is not None and tag == self.current[0]:
+            text = re.sub(r"\s+", " ", "".join(self.current[1])).strip()
+            if text:
+                self.blocks.append((tag, text))
+            self.current = None
+        index = next((i for i in range(len(self.stack) - 1, -1, -1) if self.stack[i][0] == tag), None)
+        if index is not None:
+            removed = self.stack[index:]
+            self.stack = self.stack[:index]
+            for _, entered_skip, entered_content in reversed(removed):
+                if entered_content:
+                    self.content_depth = max(0, self.content_depth - 1)
+                if entered_skip:
+                    self.skip_depth = max(0, self.skip_depth - 1)
+
+
+def official_agency_from_url(url: str) -> str:
+    parsed = urllib.parse.urlparse(url)
+    host = (parsed.hostname or "").lower().rstrip(".")
+    if parsed.scheme != "https":
+        raise ValueError("نشانی مقاله باید امن باشد.")
+    if host == "nasa.gov" or host.endswith(".nasa.gov"):
+        return "NASA"
+    if host == "esa.int" or host.endswith(".esa.int"):
+        return "ESA"
+    raise ValueError("فقط مقاله‌های رسمی NASA و ESA پشتیبانی می‌شوند.")
+
+
+def normalized_article_url(url: str) -> str:
+    parsed = urllib.parse.urlparse(url.strip())
+    return urllib.parse.urlunparse(parsed._replace(fragment="")).rstrip("/")
+
+
+def find_cached_agency_item(url: str) -> dict[str, Any] | None:
+    wanted = normalized_article_url(url)
+    for agency in ("nasa", "esa"):
+        for item in AGENCY_FEED_CACHE.get(agency, {}).get("items", []):
+            if normalized_article_url(str(item.get("url", ""))) == wanted:
+                return dict(item)
+    try:
+        payload = json.loads(AGENCY_FALLBACK_FILE.read_text(encoding="utf-8"))
+        for item in payload.get("items", []):
+            if normalized_article_url(str(item.get("url", ""))) == wanted:
+                return dict(item)
+    except Exception:
+        pass
+    return None
+
+
+def iter_json_ld(value: Any):
+    if isinstance(value, dict):
+        yield value
+        for nested in value.values():
+            yield from iter_json_ld(nested)
+    elif isinstance(value, list):
+        for nested in value:
+            yield from iter_json_ld(nested)
+
+
+def article_image_from_value(value: Any) -> str:
+    if isinstance(value, str):
+        return value
+    if isinstance(value, dict):
+        return str(value.get("url") or value.get("contentUrl") or "")
+    if isinstance(value, list):
+        for item in value:
+            image = article_image_from_value(item)
+            if image:
+                return image
+    return ""
+
+
+def clean_official_article_blocks(blocks: list[tuple[str, str]], title: str) -> list[dict[str, str]]:
+    cleaned: list[dict[str, str]] = []
+    seen: set[str] = set()
+    paragraphs = 0
+    headings = 0
+    total_chars = 0
+    title_key = re.sub(r"\W+", "", title.lower())
+    for tag, raw_text in blocks:
+        text = clean_feed_html(raw_text, 2200)
+        key = re.sub(r"\W+", "", text.lower())
+        lower = text.lower().strip(" :—-")
+        if tag in {"h1", "h2", "h3"} and lower in ARTICLE_STOP_HEADINGS:
+            break
+        if lower.startswith(("thank you for liking", "you have already liked", "want to read more", "want to learn more", "this website uses cookies")):
+            break
+        if not text or key in seen or (title_key and key == title_key):
+            continue
+        if re.fullmatch(r"\d+\s*min(?:ute)?s? read", lower):
+            continue
+        kind = "heading" if tag in {"h2", "h3"} else "paragraph"
+        if kind == "heading":
+            if len(text) < 4 or len(text) > 180 or paragraphs < 1:
+                continue
+            headings += 1
+            if headings > 6:
+                continue
+        else:
+            if len(text) < 55:
+                continue
+            paragraphs += 1
+            if paragraphs > 18:
+                break
+        seen.add(key)
+        cleaned.append({"type": kind, "text": text})
+        total_chars += len(text)
+        if total_chars >= 16_000:
+            break
+    return cleaned
+
+
+def article_key_points(paragraphs: list[str]) -> list[str]:
+    sentences: list[dict[str, Any]] = []
+    cursor = 0.0
+    for paragraph in paragraphs:
+        for sentence in re.split(r"(?<=[.!?])\s+", paragraph):
+            clean = re.sub(r"\s+", " ", sentence).strip()
+            if len(clean) >= 55:
+                sentences.append({"text": clean[:700], "start": cursor, "duration": 12.0})
+                cursor += 12.0
+    if not sentences:
+        return paragraphs[:4]
+    summarized = summarize_segments(sentences, "en")
+    return [item["text"] for item in summarized.get("bullets", [])[:5]]
+
+
+def feed_level_article(url: str, fallback: dict[str, Any] | None, warning: str = "") -> dict[str, Any]:
+    agency = official_agency_from_url(url)
+    item = fallback or {}
+    title = str(item.get("title") or "مطلب رسمی آژانس فضایی")
+    summary = str(item.get("summary") or "جزئیات مقاله موقتاً قابل دریافت نیست؛ منبع رسمی را باز کنید.")
+    return {
+        "article_id": hashlib.sha256(url.encode("utf-8")).hexdigest()[:16],
+        "agency": item.get("agency") or agency,
+        "url": url,
+        "canonical_url": url,
+        "title": title,
+        "title_fa": item.get("title_fa") or title,
+        "published": item.get("published") or "",
+        "author": "",
+        "category": item.get("category") or "Official update",
+        "image": item.get("image") or "",
+        "summary": summary,
+        "summary_fa": item.get("summary_fa") or summary,
+        "blocks": [{"type": "paragraph", "text": summary, "text_fa": item.get("summary_fa") or summary}],
+        "key_points": [summary],
+        "key_points_fa": [item.get("summary_fa") or summary],
+        "word_count": len(words(summary)),
+        "reading_minutes": 1,
+        "detail_level": "feed",
+        "translated_to_fa": bool(item.get("summary_fa")),
+        "translation_note": "جزئیات از خوراک رسمی نمایش داده شد؛ متن کامل در منبع رسمی در دسترس است.",
+        "warning": warning,
+        "fetched_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+    }
+
+
+def fetch_official_agency_article(url: str) -> dict[str, Any]:
+    url = url.strip()
+    if not url or len(url) > 2400:
+        raise ValueError("نشانی مقاله معتبر نیست.")
+    agency = official_agency_from_url(url)
+    normalized = normalized_article_url(url)
+    fallback = find_cached_agency_item(normalized)
+    cached = AGENCY_ARTICLE_CACHE.get(normalized)
+    if cached and time.time() - cached[0] < AGENCY_ARTICLE_CACHE_SECONDS:
+        return {**cached[1], "cache": True}
+
+    try:
+        request = urllib.request.Request(normalized, headers={"User-Agent": USER_AGENT, "Accept": "text/html,application/xhtml+xml"})
+        with urllib.request.urlopen(request, timeout=22) as response:
+            final_url = response.geturl()
+            official_agency_from_url(final_url)
+            content_type = response.headers.get_content_type()
+            if content_type not in {"text/html", "application/xhtml+xml"}:
+                raise ValueError("پاسخ منبع رسمی، صفحه متنی نیست.")
+            raw = response.read(4_000_001)
+            if len(raw) > 4_000_000:
+                raise ValueError("حجم صفحه رسمی بیش از حد مجاز است.")
+            charset = response.headers.get_content_charset() or "utf-8"
+        source = raw.decode(charset, errors="replace")
+        parser = OfficialArticleParser()
+        parser.feed(source)
+
+        json_article: dict[str, Any] = {}
+        for match in re.finditer(r"<script[^>]*type=[\"']application/ld\+json[\"'][^>]*>(.*?)</script>", source, flags=re.I | re.S):
+            try:
+                payload = json.loads(html_lib.unescape(match.group(1)).strip())
+            except Exception:
+                continue
+            for candidate in iter_json_ld(payload):
+                article_type = candidate.get("@type", "")
+                types = article_type if isinstance(article_type, list) else [article_type]
+                if any(str(value).lower() in {"article", "newsarticle", "blogposting", "report"} for value in types):
+                    if len(candidate) > len(json_article):
+                        json_article = candidate
+
+        html_title = re.sub(r"\s+", " ", "".join(parser.title_parts)).strip()
+        title = clean_feed_html(str(json_article.get("headline") or parser.meta.get("og:title") or (fallback or {}).get("title") or html_title), 320)
+        for suffix in (" - NASA Science", " | NASA", " - NASA", " - ESA"):
+            if title.endswith(suffix):
+                title = title[:-len(suffix)].rstrip()
+        summary = clean_feed_html(str(json_article.get("description") or parser.meta.get("og:description") or parser.meta.get("description") or (fallback or {}).get("summary") or ""), 1500)
+        published = str(json_article.get("datePublished") or parser.meta.get("article:published_time") or (fallback or {}).get("published") or "")
+        image = optimize_feed_image(article_image_from_value(json_article.get("image")) or parser.meta.get("og:image") or (fallback or {}).get("image") or (parser.images[0] if parser.images else "")) or ""
+        category = str(json_article.get("articleSection") or (fallback or {}).get("category") or ("NASA News" if agency == "NASA" else "ESA Top News"))
+        author_value = json_article.get("author") or json_article.get("creator") or ""
+        author_names: list[str] = []
+        for author in author_value if isinstance(author_value, list) else [author_value]:
+            if isinstance(author, dict) and author.get("name"):
+                author_names.append(str(author["name"]))
+            elif isinstance(author, str) and author.strip():
+                author_names.append(author.strip())
+        author = "، ".join(dict.fromkeys(author_names))[:500]
+
+        blocks = clean_official_article_blocks(parser.blocks, title)
+        article_body = str(json_article.get("articleBody") or "").strip()
+        if not blocks and article_body:
+            blocks = [{"type": "paragraph", "text": part} for part in re.split(r"\n{2,}", article_body) if len(part.strip()) >= 55][:18]
+        if not blocks:
+            return feed_level_article(normalized, fallback, "ساختار صفحه رسمی قابل استخراج نبود.")
+
+        paragraphs = [block["text"] for block in blocks if block["type"] == "paragraph"]
+        key_points = article_key_points(paragraphs)
+        translation_sources = [title, summary] + [block["text"] for block in blocks] + key_points
+        translated, translated_to_fa, translation_note = translate_texts(translation_sources, "en")
+        offset = 0
+        title_fa = translated[offset] if translated else (fallback or {}).get("title_fa", title); offset += 1
+        summary_fa = translated[offset] if len(translated) > offset else (fallback or {}).get("summary_fa", summary); offset += 1
+        translated_blocks = translated[offset:offset + len(blocks)]; offset += len(blocks)
+        translated_points = translated[offset:offset + len(key_points)]
+        for index, block in enumerate(blocks):
+            block["text_fa"] = translated_blocks[index] if index < len(translated_blocks) else block["text"]
+
+        word_count = sum(len(words(paragraph)) for paragraph in paragraphs)
+        result = {
+            "article_id": hashlib.sha256(normalized.encode("utf-8")).hexdigest()[:16],
+            "agency": agency,
+            "url": normalized,
+            "canonical_url": normalized_article_url(parser.canonical or final_url),
+            "title": title,
+            "title_fa": title_fa,
+            "published": published,
+            "author": author,
+            "category": category,
+            "image": image,
+            "summary": summary or paragraphs[0],
+            "summary_fa": summary_fa or (fallback or {}).get("summary_fa") or paragraphs[0],
+            "blocks": blocks,
+            "key_points": key_points,
+            "key_points_fa": translated_points if len(translated_points) == len(key_points) else key_points,
+            "word_count": word_count,
+            "reading_minutes": max(1, math.ceil(word_count / 180)),
+            "detail_level": "article",
+            "translated_to_fa": translated_to_fa,
+            "translation_note": translation_note,
+            "warning": "",
+            "fetched_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        }
+        AGENCY_ARTICLE_CACHE[normalized] = (time.time(), result)
+        return result
+    except ValueError:
+        raise
+    except Exception as exc:
+        if fallback:
+            return feed_level_article(normalized, fallback, f"دریافت جزئیات کامل موقتاً ممکن نبود ({type(exc).__name__}).")
+        raise
+
+
+def agency_article_api(params: dict[str, list[str]]) -> dict[str, Any]:
+    url = params.get("url", [""])[0]
+    return fetch_official_agency_article(url)
+
+
 DEMO_TRANSCRIPT = [
     {"text": "رسیدن به مدار فقط به معنای بالا رفتن نیست؛ پرتابگر باید سرعت افقی کافی ایجاد کند.", "start": 0, "duration": 7},
     {"text": "پس از برخاست، موشک ابتدا تقریباً عمودی حرکت می‌کند تا از سازه و جو غلیظ فاصله بگیرد.", "start": 7, "duration": 7},
@@ -549,6 +901,105 @@ def transcript_segments(video_id: str) -> tuple[list[dict[str, Any]], str, str]:
     return segments, chosen.language_code, chosen.language
 
 
+def timestamp_to_seconds(value: str) -> float:
+    parts = [int(part) for part in value.split(":")]
+    if len(parts) == 2:
+        return float(parts[0] * 60 + parts[1])
+    if len(parts) == 3:
+        return float(parts[0] * 3600 + parts[1] * 60 + parts[2])
+    raise ValueError("قالب زمان زیرنویس معتبر نیست.")
+
+
+def manual_transcript_segments(raw_text: str) -> list[dict[str, Any]]:
+    """Parse copied YouTube transcript text, with or without timestamps."""
+    text = raw_text.replace("\r\n", "\n").replace("\r", "\n").strip()
+    if len(text) < 80:
+        raise ValueError("متن زیرنویس خیلی کوتاه است؛ دست‌کم چند جمله کامل وارد کنید.")
+    if len(text) > 160_000:
+        raise ValueError("متن زیرنویس بیش از حد بزرگ است؛ حداکثر ۱۶۰ هزار نویسه پذیرفته می‌شود.")
+
+    timestamp_pattern = re.compile(r"^\[?((?:\d{1,2}:)?\d{1,2}:\d{2})\]?\s*$")
+    inline_pattern = re.compile(r"^\[?((?:\d{1,2}:)?\d{1,2}:\d{2})\]?\s+(.+)$")
+    parsed: list[dict[str, Any]] = []
+    current_start: float | None = None
+    current_lines: list[str] = []
+    saw_timestamp = False
+
+    def flush() -> None:
+        nonlocal current_lines
+        clean = re.sub(r"\s+", " ", " ".join(current_lines)).strip()
+        if clean and current_start is not None:
+            parsed.append({"text": clean, "start": current_start, "duration": 0.0})
+        current_lines = []
+
+    for raw_line in text.split("\n"):
+        line = raw_line.strip()
+        if not line:
+            continue
+        timestamp_match = timestamp_pattern.fullmatch(line)
+        inline_match = inline_pattern.match(line)
+        if timestamp_match:
+            flush()
+            current_start = timestamp_to_seconds(timestamp_match.group(1))
+            saw_timestamp = True
+            continue
+        if inline_match:
+            flush()
+            current_start = timestamp_to_seconds(inline_match.group(1))
+            current_lines = [inline_match.group(2)]
+            saw_timestamp = True
+            continue
+        if current_start is not None:
+            current_lines.append(line)
+    flush()
+
+    if saw_timestamp and parsed:
+        for index, segment in enumerate(parsed):
+            if index + 1 < len(parsed):
+                gap = parsed[index + 1]["start"] - segment["start"]
+                segment["duration"] = max(1.0, min(float(gap), 45.0))
+            else:
+                segment["duration"] = max(3.0, min(len(words(segment["text"])) / 2.3, 30.0))
+        return parsed[:5000]
+
+    # Text without timestamps: split it into readable sentence groups and
+    # synthesize approximate timing solely for chapter ordering.
+    pieces = [
+        re.sub(r"\s+", " ", piece).strip()
+        for piece in re.split(r"(?<=[.!?؟])\s+|\n+", text)
+        if piece.strip()
+    ]
+    groups: list[str] = []
+    bucket = ""
+    for piece in pieces:
+        candidate = f"{bucket} {piece}".strip()
+        if bucket and len(candidate) > 420:
+            groups.append(bucket)
+            bucket = piece
+        else:
+            bucket = candidate
+    if bucket:
+        groups.append(bucket)
+    if not groups:
+        groups = [text]
+
+    start = 0.0
+    generated: list[dict[str, Any]] = []
+    for group in groups[:5000]:
+        duration = max(4.0, min(len(words(group)) / 2.3, 45.0))
+        generated.append({"text": group, "start": round(start, 2), "duration": round(duration, 2)})
+        start += duration
+    return generated
+
+
+def detect_transcript_language(text: str) -> tuple[str, str]:
+    persian = len(re.findall(r"[\u0600-\u06ff]", text))
+    latin = len(re.findall(r"[A-Za-z]", text))
+    if persian > latin * 0.35:
+        return "fa", "Persian"
+    return "en", "English"
+
+
 def words(text: str) -> list[str]:
     return re.findall(r"[\w\-]+", text.lower(), flags=re.UNICODE)
 
@@ -616,26 +1067,177 @@ def summarize_segments(segments: list[dict[str, Any]], language_code: str) -> di
     }
 
 
+def group_transcript_segments(segments: list[dict[str, Any]], max_chars: int = 680, max_seconds: float = 55.0) -> list[dict[str, Any]]:
+    """Combine short caption fragments into contextual, readable paragraphs."""
+    grouped: list[dict[str, Any]] = []
+    texts: list[str] = []
+    start = 0.0
+    end = 0.0
+
+    def flush() -> None:
+        nonlocal texts, start, end
+        text = re.sub(r"\s+", " ", " ".join(texts)).strip()
+        if text:
+            grouped.append({"text": text, "start": round(start, 2), "duration": round(max(end - start, 1.0), 2)})
+        texts = []
+
+    previous_text = ""
+    for segment in segments:
+        clean = html_lib.unescape(re.sub(r"\s+", " ", str(segment.get("text", "")))).strip()
+        if not clean or clean == previous_text:
+            continue
+        segment_start = float(segment.get("start", 0))
+        segment_end = segment_start + float(segment.get("duration", 0) or 0)
+        candidate = f"{' '.join(texts)} {clean}".strip()
+        elapsed = segment_end - start if texts else 0
+        if texts and (len(candidate) > max_chars or elapsed > max_seconds):
+            flush()
+        if not texts:
+            start = segment_start
+        texts.append(clean)
+        end = segment_end
+        previous_text = clean
+        if len(" ".join(texts)) >= 280 and re.search(r"[.!?؟]$", clean):
+            flush()
+    flush()
+    return grouped
+
+
+AEROSPACE_TRANSLATION_RULES: list[tuple[str, str, tuple[str, ...]]] = [
+    ("guidance, navigation and control", "هدایت، ناوبری و کنترل", ("هدایت، ناوبری و کنترل", "راهنمایی، ناوبری و کنترل")),
+    ("attitude determination and control system", "سامانه تعیین و کنترل وضعیت", ("سیستم تعیین و کنترل نگرش", "سامانه تعیین و کنترل نگرش", "سیستم تعیین و کنترل وضعیت")),
+    ("sun-synchronous orbit", "مدار خورشیدآهنگ", ("مدار همگام خورشیدی", "مدار خورشیدی همگام", "مدار خورشید همگام")),
+    ("geostationary orbit", "مدار زمین‌ایستا", ("مدار زمین ثابت", "مدار زمین‌ثابت", "مدار ثابت زمین", "مدار ژئواستاتیک")),
+    ("low earth orbit", "مدار پایین زمین", ("مدار پایین زمینی", "مدار پایین کره زمین", "مدار کم ارتفاع زمین")),
+    ("medium earth orbit", "مدار میانی زمین", ("مدار متوسط زمین", "مدار میانی زمینی")),
+    ("orbital mechanics", "مکانیک مداری", ("مکانیک مدار",)),
+    ("orbital period", "دوره مداری", ("دورهٔ مداری", "دوره مدار")),
+    ("orbital insertion", "تزریق مداری", ("درج مداری", "ورود مداری", "تزریق به مدار")),
+    ("launch vehicle", "پرتابگر", ("وسیله نقلیه پرتاب", "وسیلهٔ نقلیهٔ پرتاب", "وسیله پرتاب", "خودروی پرتاب")),
+    ("stage separation", "جدایش مرحله", ("جداسازی مرحله", "تفکیک مرحله")),
+    ("specific impulse", "تکانه ویژه", ("ضربه خاص", "تکانه خاص", "ضربه ویژه")),
+    ("reaction wheels", "چرخ‌های عکس‌العملی", ("چرخ های واکنش", "چرخ‌های واکنش", "چرخ های عکس العمل", "چرخ‌های عکس‌العمل")),
+    ("reaction wheel", "چرخ عکس‌العملی", ("چرخ واکنش", "چرخ عکس العمل", "چرخ عکس‌العمل")),
+    ("star trackers", "دوربین‌های ستاره‌ای", ("ردیاب های ستاره", "ردیاب‌های ستاره", "ردیاب ستاره")),
+    ("star tracker", "دوربین ستاره‌ای", ("ردیاب ستاره", "ردیاب ستاره‌ای")),
+    ("attitude control", "کنترل وضعیت", ("کنترل نگرش", "کنترل حالت")),
+    ("attitude determination", "تعیین وضعیت", ("تعیین نگرش", "تشخیص نگرش")),
+    ("station keeping", "نگهداری مداری", ("نگه داشتن ایستگاه", "حفظ ایستگاه", "ایستگاه داری", "ایستگاه‌داری")),
+    ("earth observation", "رصد زمین", ("مشاهده زمین", "مشاهدۀ زمین", "مشاهدهٔ زمین")),
+    ("eclipse", "عبور از سایه", ("کسوف", "گرفتگی", "سایه گرفتگی")),
+    ("remote sensing", "سنجش‌ازدور", ("سنجش از دور",)),
+    ("ground station", "ایستگاه زمینی", ("ایستگاه زمین",)),
+    ("thermal control", "کنترل حرارتی", ("کنترل گرمایی", "کنترل حرارت")),
+    ("power system", "سامانه توان", ("سیستم قدرت", "سیستم توان")),
+    ("telemetry", "تله‌متری", ("تله متری", "دورسنجی")),
+    ("downlink", "پیوند پایین‌رو", ("از طریق لینک پایین ارسال", "با لینک پایین ارسال", "لینک پایین", "پیوند رو به پایین")),
+    ("downlink data", "ارسال داده از طریق پیوند پایین‌رو", ("داده را متصل", "داده‌ها را متصل", "داده را پایین می‌فرستد")),
+    ("uplink", "پیوند بالارو", ("لینک بالا", "پیوند رو به بالا")),
+    ("payload fairing", "فیرینگ محموله", ("نمایشگاه محموله", "پوشش بار", "پوشش محموله")),
+    ("delta-v", "دلتاوی", ("دلتا وی", "دلتا-v", "دلتا V")),
+    ("inclination", "میل مداری", ("شیب مداری", "تمایل مداری", "شیب", "تمایل")),
+    ("propellant", "مادهٔ پیشران", ("سوخت پیشران", "پیشراننده", "سوخت موشک")),
+    ("spacecraft", "فضاپیما", ("سفینه فضایی", "فضاپیمای فضایی")),
+    ("apogee", "اوج مداری", ("آپوجی", "اوج مدار")),
+    ("perigee", "حضیض مداری", ("پریجی", "حضیض مدار")),
+    ("system", "سامانه", ("سیستم",)),
+    ("power", "توان", ("قدرت",)),
+]
+
+
+def refine_persian_translation(source_text: str, translated_text: str) -> str:
+    """Normalize Persian prose and enforce a small aerospace terminology guide."""
+    text = html_lib.unescape(str(translated_text)).translate(str.maketrans({"ي": "ی", "ى": "ی", "ك": "ک"}))
+    source_lower = source_text.lower()
+    for source_term, canonical, variants in AEROSPACE_TRANSLATION_RULES:
+        if re.search(rf"(?<![a-z0-9]){re.escape(source_term)}(?![a-z0-9])", source_lower):
+            for variant in sorted(variants, key=len, reverse=True):
+                text = re.sub(
+                    rf"(?<!\w){re.escape(variant)}(?!\w)",
+                    canonical,
+                    text,
+                    flags=re.IGNORECASE,
+                )
+
+    spelling = {
+        "ماموریت": "مأموریت", "ماموریت‌ها": "مأموریت‌ها", "تاخیر": "تأخیر",
+        "تاثیر": "تأثیر", "تایید": "تأیید", "مساله": "مسئله",
+        "نسبتا": "نسبتاً", "دقیقا": "دقیقاً", "تقریبا": "تقریباً",
+        "کاملا": "کاملاً", "معمولا": "معمولاً", "احتمالا": "احتمالاً",
+    }
+    for wrong, correct in spelling.items():
+        optional_tanwin = "ً?" if correct.endswith("ً") else ""
+        text = re.sub(rf"(?<!\w){re.escape(wrong)}{optional_tanwin}(?!\w)", correct, text)
+
+    if re.search(r"(?<![a-z0-9])downlink(?![a-z0-9])", source_lower):
+        text = re.sub(r"متصل\s+(می[‌ ]?[\u0600-\u06ff]+)", r"از طریق پیوند پایین‌رو ارسال \1", text)
+        text = re.sub(r"پایین\s+می[‌ ]?فرستند", "از طریق پیوند پایین‌رو ارسال می‌کنند", text)
+        text = re.sub(r"پایین\s+می[‌ ]?فرستد", "از طریق پیوند پایین‌رو ارسال می‌کند", text)
+        text = re.sub(
+            r"(داده(?:‌های)?[^.،؛]{0,120}) را به (ایستگاه زمینی) از طریق پیوند پایین‌رو ارسال (می[‌ ]?[\u0600-\u06ff]+)",
+            r"\1 را از طریق پیوند پایین‌رو به \2 ارسال \3",
+            text,
+        )
+
+    verbs = "کند|کنند|کرد|کرده|شود|شوند|شد|شده|رود|روند|رفت|ماند|مانند|باشد|باشند|تواند|توانند|گیرد|گیرند|دهد|دهند|آید|آیند|رسد|رسند"
+    text = re.sub(rf"\b(ن?می)\s+({verbs})\b", lambda match: f"{match.group(1)}\u200c{match.group(2)}", text)
+    text = re.sub(r"([\u0600-\u06ff]+)\s+(ها|های)\b", r"\1‌\2", text)
+    text = re.sub(r"\bبه\s+طور\b", "به‌طور", text)
+    text = re.sub(r"\bهم\s+زمان\b", "هم‌زمان", text)
+    text = re.sub(r"\s+([،؛:,.!?؟])", r"\1", text)
+    text = re.sub(r"([،؛])(?=\S)", r"\1 ", text)
+    return re.sub(r"\s+", " ", text).strip()
+
+
 def translate_texts(texts: list[str], source_lang: str) -> tuple[list[str], bool, str | None]:
     if source_lang.startswith("fa"):
-        return texts, False, None
+        return [refine_persian_translation(text, text) for text in texts], False, None
     try:
         translated = translate_texts_remote(texts, "fa", "en" if source_lang.startswith("en") else "auto")
         changed = any(a != b for a, b in zip(texts, translated))
-        return translated, changed, None if changed else "ترجمه خودکار تغییری در متن ایجاد نکرد."
+        if changed:
+            translated = [refine_persian_translation(source, target) for source, target in zip(texts, translated)]
+            return translated, True, "ترجمه فارسی با حفظ بافت جمله، اصلاح نگارشی و واژه‌نامه تخصصی هوافضا آماده شد؛ برای نقل‌قول حساس با متن اصلی مقابله شود."
+        return translated, False, "ترجمه خودکار تغییری در متن ایجاد نکرد."
     except Exception as exc:  # Translation is an enhancement; source summary remains useful.
         return texts, False, f"ترجمه خودکار در دسترس نبود؛ خلاصه به زبان زیرنویس نمایش داده شد. ({type(exc).__name__})"
 
 
 def youtube_api(payload: dict[str, Any]) -> dict[str, Any]:
     raw_url = str(payload.get("url", "")).strip()
-    is_demo = raw_url == "demo"
+    manual_text = str(payload.get("transcript_text", "")).strip()
+    is_manual = bool(manual_text)
+    is_demo = raw_url == "demo" and not is_manual
+
     if is_demo:
         video_id = "demo-launch"
         segments, lang_code, lang_name = DEMO_TRANSCRIPT, "fa", "Persian"
         title = "چگونه یک پرتابگر ماهواره را در مدار قرار می‌دهد؟"
         author = "نمونه آموزشی مدار"
         thumbnail = "/images/stages/stage-6.svg"
+    elif is_manual:
+        segments = manual_transcript_segments(manual_text)
+        requested_language = str(payload.get("source_language", "auto")).lower()
+        if requested_language == "fa":
+            lang_code, lang_name = "fa", "Persian"
+        elif requested_language == "en":
+            lang_code, lang_name = "en", "English"
+        else:
+            lang_code, lang_name = detect_transcript_language(manual_text)
+        video_id = video_id_from_url(raw_url) if raw_url else None
+        title = str(payload.get("title", "")).strip()[:300] or "متن واردشده توسط کاربر"
+        author = "ورودی دستی زیرنویس"
+        thumbnail = ""
+        if video_id:
+            thumbnail = f"https://i.ytimg.com/vi/{video_id}/hqdefault.jpg"
+            try:
+                oembed = fetch_json(f"https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v={video_id}&format=json", ttl=86400)
+                title = oembed.get("title", title)
+                author = oembed.get("author_name", author)
+                thumbnail = oembed.get("thumbnail_url", thumbnail)
+            except Exception:
+                pass
+        video_id = video_id or "manual-transcript"
     else:
         video_id = video_id_from_url(raw_url)
         if not video_id:
@@ -651,16 +1253,39 @@ def youtube_api(payload: dict[str, Any]) -> dict[str, Any]:
         except Exception:
             pass
 
-    summary = summarize_segments(segments, lang_code)
-    source_bullets = [b["text"] for b in summary["bullets"]]
-    translated_bullets, translated, translation_note = translate_texts(source_bullets, lang_code)
+    source_summary = summarize_segments(segments, lang_code)
+    summary = {
+        **source_summary,
+        "bullets": [dict(item) for item in source_summary["bullets"]],
+        "chapters": [dict(item) for item in source_summary["chapters"]],
+        "technical_terms": [dict(item) for item in source_summary["technical_terms"]],
+    }
+
+    source_bullets = [item["text"] for item in source_summary["bullets"]]
+    source_chapters = [item["title"] for item in source_summary["chapters"]]
+    display_segments = group_transcript_segments(segments)
+    source_transcript = [item["text"] for item in display_segments]
+    translated_all, translated, translation_note = translate_texts(
+        source_bullets + source_chapters + source_transcript,
+        lang_code,
+    )
+    bullet_end = len(source_bullets)
+    chapter_end = bullet_end + len(source_chapters)
+    translated_bullets = translated_all[:bullet_end]
+    translated_chapters = translated_all[bullet_end:chapter_end]
+    translated_transcript = translated_all[chapter_end:]
+
     for bullet, text in zip(summary["bullets"], translated_bullets):
         bullet["text"] = text
-
-    chapter_titles = [c["title"] for c in summary["chapters"]]
-    translated_chapters, chapter_translated, _ = translate_texts(chapter_titles, lang_code)
     for chapter, text in zip(summary["chapters"], translated_chapters):
         chapter["title"] = text
+
+    transcript_fa = [
+        {**segment, "text": translated_text}
+        for segment, translated_text in zip(display_segments, translated_transcript)
+    ]
+    if len(transcript_fa) < len(display_segments):
+        transcript_fa.extend(dict(segment) for segment in display_segments[len(transcript_fa):])
 
     return {
         "video_id": video_id,
@@ -669,16 +1294,62 @@ def youtube_api(payload: dict[str, Any]) -> dict[str, Any]:
         "thumbnail": thumbnail,
         "language": lang_name,
         "language_code": lang_code,
-        "translated_to_fa": translated or chapter_translated,
+        "translated_to_fa": translated,
         "translation_note": translation_note,
+        "input_mode": "demo" if is_demo else "manual" if is_manual else "youtube",
         "summary": summary,
-        "transcript_preview": segments[:12],
+        "source_summary": source_summary,
+        "transcript_original": display_segments,
+        "transcript_fa": transcript_fa,
+        "transcript_preview": display_segments[:12],
+        "translation_method": "contextual-aerospace-v2",
         "method_note": "خلاصه با امتیازدهی واژگانی و ساختاری تولید شده است؛ برای تصمیم فنی حساس به ویدئو و منابع اصلی مراجعه کنید.",
     }
 
 
+def youtube_error_response(exc: Exception) -> dict[str, Any]:
+    error_name = type(exc).__name__
+    detail = str(exc)
+    lowered = f"{error_name} {detail}".lower()
+    if "requestblocked" in lowered or "ipblocked" in lowered or "blocking requests from your ip" in lowered:
+        return {
+            "error": "یوتیوب درخواست دریافت زیرنویس از نشانی این کارساز را مسدود کرده است.",
+            "code": "youtube_ip_blocked",
+            "detail": "از مسیر جایگزین پایین صفحه، متن زیرنویس را وارد کنید تا ترجمه و خلاصه‌سازی ادامه یابد.",
+        }
+    if "transcriptsdisabled" in lowered:
+        return {
+            "error": "زیرنویس این ویدئو غیرفعال است.",
+            "code": "transcripts_disabled",
+            "detail": "ویدئوی دیگری انتخاب کنید یا متن آماده را در مسیر جایگزین وارد کنید.",
+        }
+    if "notranscriptfound" in lowered or "no transcript" in lowered:
+        return {
+            "error": "برای این ویدئو زیرنویس قابل دریافت پیدا نشد.",
+            "code": "transcript_not_found",
+            "detail": "زبان‌های زیرنویس و عمومی‌بودن ویدئو را بررسی کنید یا متن را دستی وارد کنید.",
+        }
+    if "age" in lowered and "restrict" in lowered:
+        return {
+            "error": "ویدئو محدودیت سنی یا ورود به حساب دارد.",
+            "code": "video_restricted",
+            "detail": "دریافت خودکار برای ویدئوهای محدود ممکن نیست؛ از متن زیرنویس استفاده کنید.",
+        }
+    if "videounavailable" in lowered or "unavailable" in lowered:
+        return {
+            "error": "ویدئو عمومی یا در دسترس نیست.",
+            "code": "video_unavailable",
+            "detail": "نشانی ویدئو را بررسی کنید یا متن زیرنویس را وارد کنید.",
+        }
+    return {
+        "error": "خلاصه‌سازی خودکار انجام نشد.",
+        "code": "youtube_transcript_error",
+        "detail": "ویدئو باید عمومی و دارای زیرنویس باشد؛ در صورت ادامه خطا از ورود متن استفاده کنید.",
+    }
+
+
 class MadarHandler(SimpleHTTPRequestHandler):
-    server_version = "Madar/0.7"
+    server_version = "Madar/0.18-experimental"
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, directory=str(PUBLIC), **kwargs)
@@ -723,7 +1394,10 @@ class MadarHandler(SimpleHTTPRequestHandler):
         self.send_header("Cache-Control", "public, max-age=3600")
         self.send_header("X-Content-Type-Options", "nosniff")
         self.end_headers()
-        self.wfile.write(body)
+        try:
+            self.wfile.write(body)
+        except (BrokenPipeError, ConnectionResetError):
+            pass
 
     def do_GET(self) -> None:
         parsed = urllib.parse.urlparse(self.path)
@@ -742,6 +1416,9 @@ class MadarHandler(SimpleHTTPRequestHandler):
             if parsed.path == "/api/agency-feed":
                 self.send_json(agency_feed_api(params))
                 return
+            if parsed.path == "/api/agency-article":
+                self.send_json(agency_article_api(params))
+                return
             if parsed.path == "/api/stats":
                 self.send_json(stats_api())
                 return
@@ -749,6 +1426,8 @@ class MadarHandler(SimpleHTTPRequestHandler):
                 self.send_json(satellites_api(params))
                 return
             super().do_GET()
+        except ValueError as exc:
+            self.send_json({"error": str(exc), "code": "invalid_input"}, HTTPStatus.BAD_REQUEST)
         except (urllib.error.URLError, TimeoutError) as exc:
             self.send_json({"error": "منبع زنده موقتاً پاسخ نداد.", "detail": str(exc)}, HTTPStatus.BAD_GATEWAY)
         except Exception as exc:
@@ -761,7 +1440,8 @@ class MadarHandler(SimpleHTTPRequestHandler):
             return
         try:
             length = int(self.headers.get("Content-Length", "0"))
-            if length > 80_000:
+            maximum = 600_000 if parsed.path == "/api/youtube-summary" else 80_000
+            if length > maximum:
                 raise ValueError("درخواست بیش از حد بزرگ است.")
             payload = json.loads(self.rfile.read(length).decode("utf-8") or "{}")
             if parsed.path == "/api/translate":
@@ -775,17 +1455,12 @@ class MadarHandler(SimpleHTTPRequestHandler):
             else:
                 self.send_json(youtube_api(payload))
         except ValueError as exc:
-            self.send_json({"error": str(exc)}, HTTPStatus.BAD_REQUEST)
+            self.send_json({"error": str(exc), "code": "invalid_input"}, HTTPStatus.BAD_REQUEST)
         except Exception as exc:
-            detail = str(exc)
             if parsed.path == "/api/translate":
-                self.send_json({"error": "ترجمه خودکار موقتاً در دسترس نیست.", "detail": detail}, HTTPStatus.BAD_GATEWAY)
+                self.send_json({"error": "ترجمه خودکار موقتاً در دسترس نیست.", "detail": str(exc)}, HTTPStatus.BAD_GATEWAY)
                 return
-            if "Transcript" in type(exc).__name__ or "Video" in type(exc).__name__:
-                message = "زیرنویس این ویدئو قابل دریافت نیست؛ ممکن است ویدئو خصوصی، محدود یا بدون کپشن باشد."
-            else:
-                message = "خلاصه‌سازی انجام نشد. لینک و دسترسی به زیرنویس را بررسی کنید."
-            self.send_json({"error": message, "detail": detail}, HTTPStatus.BAD_GATEWAY)
+            self.send_json(youtube_error_response(exc), HTTPStatus.BAD_GATEWAY)
 
 
 def main() -> None:

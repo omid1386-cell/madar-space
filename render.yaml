@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: madar-space-omid1386
+    runtime: python
+    plan: free
+    region: virginia
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -u app.py
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.8

@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Local runtime caches (public fallback snapshots remain tracked)
+data-cache.json
+translation-cache.json
+agency-feed-cache.json
+*.tmp
+
+# Local tooling
+vendor/
+node_modules/
+.npm/
+.DS_Store
+
+# Logs and editor files
+*.log
+.vscode/
+.idea/

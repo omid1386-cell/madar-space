@@ -1,0 +1,11 @@
+Madar full-backend GitHub release package
+Version: 0.18-experimental
+Cache version: 0.18.0
+Prepared: 2026-10-16
+Target repository: https://github.com/omid1386-cell/madar-space-render
+Target branch: main
+Hosting mode: Python web service
+Health path: /api/health
+Vendor directory: intentionally excluded; dependencies install from requirements.txt
+Runtime caches: excluded
+Credentials and environment secrets: not included

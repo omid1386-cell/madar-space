@@ -1,0 +1,45 @@
+نصب ساده مدار روی گوشی اندرویدی — بدون GitHub و Render
+======================================================
+
+مرحله ۱ — نصب Termux
+---------------------
+Termux را از F-Droid نصب کنید (نسخه Play Store قدیمی است):
+https://f-droid.org/packages/com.termux/
+
+مرحله ۲ — آماده‌کردن فایل
+-------------------------
+فایل madar-android-v0.9.zip را روی گوشی دانلود و Extract کنید.
+پوشه استخراج‌شده باید داخل Download و با نام madar-android-v0.9 باشد.
+
+مرحله ۳ — فقط دو فرمان
+----------------------
+Termux را باز کنید و ابتدا بنویسید:
+
+termux-setup-storage
+
+دسترسی فایل‌ها را Allow کنید. سپس بنویسید:
+
+bash /sdcard/Download/madar-android-v0.9/android/install-android.sh
+
+نصب چند دقیقه طول می‌کشد. در پایان Chrome خودکار باز می‌شود.
+
+مرحله ۴ — افزودن آیکون
+----------------------
+در Chrome منوی سه‌نقطه را بزنید و Install app یا Add to Home screen را انتخاب کنید.
+
+اجرای دفعات بعد
+---------------
+اگر Android یا Termux سرور را متوقف کرد، Termux را باز کنید و فقط بنویسید:
+
+bash ~/madar/start-madar.sh
+
+برای جلوگیری از توقف ناخواسته:
+Settings → Apps → Termux → Battery → Unrestricted
+
+توقف اختیاری سرور:
+
+bash ~/madar/stop-madar.sh
+
+نکته
+-----
+همه بخش‌ها روی خود گوشی اجرا می‌شوند. برای اطلاعات تازه پرتاب‌ها، NASA/ESA، ترجمه و YouTube به اینترنت نیاز است؛ محتوای آموزشی Cache‌شده آفلاین کار می‌کند.
