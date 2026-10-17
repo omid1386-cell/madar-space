@@ -25,10 +25,10 @@
       apply(saved==='light'||saved==='dark'?saved:'dark',false,false);
       document.addEventListener('DOMContentLoaded',syncButton,{once:true});
       if('serviceWorker' in navigator){
-        navigator.serviceWorker.addEventListener('controllerchange',()=>{const key='madar-sw-reload-0.18.0';if(!sessionStorage.getItem(key)){sessionStorage.setItem(key,'1');location.reload()}});
+        navigator.serviceWorker.addEventListener('controllerchange',()=>{const key='madar-sw-reload-0.19.0';if(!sessionStorage.getItem(key)){sessionStorage.setItem(key,'1');location.reload()}});
         window.addEventListener('load',async()=>{
           try{
-            const migration='0.18.0',marker='madar-cache-migration';
+            const migration='0.19.0',marker='madar-cache-migration';
             if(localStorage.getItem(marker)!==migration&&'caches' in window){
               const keys=await caches.keys();await Promise.all(keys.filter(key=>key.startsWith('madar-')&&!key.endsWith(migration)).map(key=>caches.delete(key)));localStorage.setItem(marker,migration);
             }
@@ -49,7 +49,7 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" type="image/png" sizes="64x64" href="icons/favicon-64.png">
   <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
-  <link rel="stylesheet" href="styles-v0.18.css">
+  <link rel="stylesheet" href="styles-v0.19.css">
   <style id="themeCritical">html[data-theme="light"]{color-scheme:light;--bg:#eef4f1;--bg-2:#e8f0ec;--panel:#fff;--panel-2:#f5f9f7;--panel-3:#edf5f1;--line:#b7cdc4;--line-soft:#d4e3dd;--text:#13271f;--muted:#405e53;--subtle:#536f65;--green:#056649;--green-2:#087a59;--cyan:#086d8c;--lime:#4f7519;--gold:#7c5205;--coral:#b94336;--violet:#5942a8;--danger:#b93632}html[data-theme="light"] body{background:#eef4f1;color:#13271f}html[data-theme="light"] .sidebar{background:#f8fbf9;border-color:#d8e5df}html[data-theme="light"] .topbar{background:rgba(248,251,249,.94);border-color:#d8e5df}</style>
 </head>
 <body>
@@ -112,7 +112,7 @@
         <div><small>چالش این هفته</small><strong>طراحی انتقال هوهمن</strong></div>
         <button data-view="tools" data-tool-tab="hohmann"><svg><use href="#i-arrow"/></svg></button>
       </div>
-      <div class="sidebar-foot"><span class="status-led"></span> داده زنده با کش هوشمند <b>v0.18 آزمایشی</b></div>
+      <div class="sidebar-foot"><span class="status-led"></span> داده زنده با کش هوشمند <b>v0.19 آزمایشی</b></div>
     </aside>
 
     <div class="sidebar-scrim" id="sidebarScrim"></div>
@@ -509,6 +509,6 @@
   <script src="knowledge-data.js"></script>
   <script src="terminology-data.js"></script>
   <script src="failure-causes.js"></script>
-  <script src="app-v0.18.js"></script>
+  <script src="app-v0.19.js"></script>
 </body>
 </html>

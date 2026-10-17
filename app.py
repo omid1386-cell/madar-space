@@ -41,7 +41,7 @@ PUBLIC = PUBLIC_DIR if (PUBLIC_DIR / "index.html").is_file() else ROOT
 if not (PUBLIC / "index.html").is_file():
     raise RuntimeError("Frontend entry file not found: expected public/index.html or index.html")
 PORT = int(os.environ.get("PORT", "8000"))
-USER_AGENT = "Madar-Space-Learning/0.18-experimental (+educational prototype)"
+USER_AGENT = "Madar-Space-Learning/0.19-experimental (+educational prototype)"
 LL2 = "https://ll.thespacedevs.com/2.3.0"
 CACHE: dict[str, tuple[float, Any]] = {}
 IMAGE_CACHE: dict[str, tuple[float, bytes, str]] = {}
@@ -1349,7 +1349,7 @@ def youtube_error_response(exc: Exception) -> dict[str, Any]:
 
 
 class MadarHandler(SimpleHTTPRequestHandler):
-    server_version = "Madar/0.18-experimental"
+    server_version = "Madar/0.19-experimental"
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, directory=str(PUBLIC), **kwargs)

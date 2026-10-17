@@ -99,7 +99,7 @@ const ch18={
  ]
 };
 course.chapters.push(ch18);
-course.version="0.18-experimental";
+course.version="0.19-experimental";
 course.time="۲۸ ساعت مطالعه، آزمایشگاه و پروژه جامع";
 course.summary="نسخه نهایی مسیر تخصصی آزمایشی شامل هجده فصل، پانزده آزمایشگاه، تعیین مدار مقدماتی، حل Lambert، طراحی انرژی Patched Conics، پروژه جامع مأموریت و آزمون پایانی است. نسخه پایدار همچنان مستقل و دست‌نخورده باقی مانده است.";
 course.objectives=[

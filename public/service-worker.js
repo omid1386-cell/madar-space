@@ -1,4 +1,4 @@
-const VERSION = '0.18.0';
+const VERSION = '0.19.0';
 const STATIC_CACHE = `madar-static-${VERSION}`;
 const DATA_CACHE = `madar-data-${VERSION}`;
 const IMAGE_CACHE = `madar-images-${VERSION}`;
@@ -6,12 +6,13 @@ const BASE_URL = self.registration.scope;
 const asset = path => new URL(String(path).replace(/^\/+/, ''), BASE_URL).toString();
 
 const APP_SHELL_PATHS = [
-  '/', '/index.html', '/offline.html', '/manifest.webmanifest', '/styles-v0.18.css', '/app-v0.18.js',
+  '/', '/index.html', '/offline.html', '/manifest.webmanifest', '/styles-v0.19.css', '/app-v0.19.js',
   '/data.js', '/launch-detail.js', '/orbit-detail.js', '/learning-content.js',
   '/orbital-mechanics-stable.js', '/orbital-mechanics-course.js', '/orbital-mechanics-phase2.js', '/orbital-mechanics-phase3.js', '/orbital-mechanics-phase4.js', '/orbital-mechanics-phase5.js', '/orbital-phase5-math.js', '/orbital-labs.js', '/satellite-data.js', '/knowledge-data.js', '/terminology-data.js', '/failure-causes.js',
   '/agency-feed-fallback.json', '/launches-fallback.json', '/failures-fallback.json',
   '/fonts/Vazirmatn-UI-Regular.woff2', '/fonts/Vazirmatn-UI-Medium.woff2',
   '/fonts/Vazirmatn-UI-SemiBold.woff2', '/fonts/Vazirmatn-UI-Bold.woff2',
+  '/fonts/STIXTwoMath-MadarSubset.woff', '/fonts/OFL-STIXTwoMath.txt',
   '/icons/icon-192.png', '/icons/icon-512.png', '/icons/apple-touch-icon.png', '/icons/favicon-64.png',
   '/images/reference/artemis-liftoff-nasa.jpg', '/images/reference/fairing-separation-esa.jpg',
   '/images/reference/sentinel-separation-esa.jpg', '/images/reference/artemis-stage-separation-esa.jpg', '/images/launch-placeholder.svg',
@@ -103,7 +104,7 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  if (url.pathname === '/styles-v0.18.css' || url.pathname === '/app-v0.18.js') {
+  if (url.pathname === '/styles-v0.19.css' || url.pathname === '/app-v0.19.js') {
     event.respondWith(staticNetworkFirst(request));
     return;
   }
